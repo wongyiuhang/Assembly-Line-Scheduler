@@ -145,3 +145,30 @@ void clearQueue(struct Queue* queue) {
 	free(queue);
 }
 
+void printQueue(struct Queue* queue) {
+	printf("***************\n");
+	printf("*             *\n");
+	printf("*    DEBUG    *\n");
+	printf("*             *\n");
+	printf("***************\n\n");
+
+	printf("========== HEAD ==========\n");
+	printf("head -> %p\n", queue->head);
+	printf("tail -> %p\n\n", queue->tail);
+
+	struct Node* nextNode = queue->head;
+	int i = 0;
+	while(nextNode != NULL) {
+		printf("========== NODE %d ==========\n", i);
+		printf("orderID: %s\n", nextNode->data.orderID);
+		printf("startDateStr: %s\n", nextNode->data.startDateStr);
+		printf("endDateStr: %s\n", nextNode->data.endDateStr);
+		printf("pdNameStr: %s\n", nextNode->data.pdNameStr);
+		printf("quantity: %d\n\n", nextNode->data.quantity);
+		i++;
+		nextNode = nextNode->next;
+	}
+
+	printf("===============\n");
+	printf("===============\n\n");
+}
