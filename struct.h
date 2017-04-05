@@ -3,36 +3,6 @@
 
 #pragma once
 
-/*******************
- *                 *
- *    Structure    *
- *                 *
- *******************/
-struct Candidate {
-	char name[11];
-} candidate_t;
-
-struct State {
-	char name[3];
-} state_t;
-
-struct Time {
-	short year;
-	short month;
-	short date;
-	short hour;
-	short minute;
-	short second;
-} my_time_t;
-
-struct Vote {
-	int rank;
-	int id;
-	struct Time timestamp;
-	struct Candidate* candidate;
-	struct State* state;
-} vote_t;
-
 
 /*************************
  *                       *
@@ -97,8 +67,8 @@ int enqueue(struct Queue* queue, const struct Order* job) {
 	return 0;
 }
 
-struct PrintJob dequeue(struct Queue* queue) {
-	struct PrintJob result;
+struct Order dequeue(struct Queue* queue) {
+	struct Order result;
 
 	// Error checking
 	if(queue == NULL || queue->head == NULL)
@@ -133,9 +103,9 @@ int countQueue(struct Queue* queue) {
 	return count;
 }
 
-struct PrintJob queueRemoveById(struct Queue* queue, int id) {
+struct Order queueRemoveById(struct Queue* queue, int id) {
 	int i;
-	struct PrintJob result;
+	struct Order result;
 
 	// Error checking
 	if(id >= countQueue(queue))
@@ -175,7 +145,3 @@ void clearQueue(struct Queue* queue) {
 	free(queue);
 }
 
-struct PrinterStatus {
-	int paper;
-	struct Queue* printJob;
-} printer_status_t;
