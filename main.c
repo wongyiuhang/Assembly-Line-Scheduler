@@ -13,6 +13,7 @@ int main(int argc, char *argv[]){
 	printf("\n");
 	printf("\t\t ~~WELCOME TO ALS~~ \n");
 	printf("\n");
+	struct Queue* queue = newQueue();
 	bool keepLoop = true;	
 	char command[100];
 	while(keepLoop){
@@ -22,8 +23,8 @@ int main(int argc, char *argv[]){
 			 // continue;			
 		}
 		switch(checkCommandExist(command)){
-			case 0:cm_addOrder(command);break;
-			case 1:cm_addBatchOrder(command);break;
+			case 0:cm_addOrder(command,queue);break;
+			case 1:cm_addBatchOrder(command,queue);break;
 			case 2:cm_runAls(command);break;
 			case 3:cm_printReport(command);break;
 			case 4:endProgram();break;
