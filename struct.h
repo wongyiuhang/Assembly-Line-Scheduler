@@ -145,7 +145,7 @@ void clearQueue(struct Queue* queue) {
 	free(queue);
 }
 
-void printQueue(struct Queue* queue) {
+void printQueue(const struct Queue* queue) {
 	printf("***************\n");
 	printf("*             *\n");
 	printf("*    DEBUG    *\n");
@@ -156,7 +156,7 @@ void printQueue(struct Queue* queue) {
 	printf("head -> %p\n", queue->head);
 	printf("tail -> %p\n\n", queue->tail);
 
-	struct Node* nextNode = queue->head;
+	const struct Node* nextNode = queue->head;
 	int i = 0;
 	while(nextNode != NULL) {
 		printf("========== NODE %d ==========\n", i);
