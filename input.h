@@ -112,11 +112,11 @@ void cm_addBatchOrder(char * command,struct Queue* queue){
 	FILE *file;
 	file = fopen(fileName, "r");
 	while (fgets(line, sizeof(line), file)) {
-		sscanf( line, "%s%s%s%s%s", orderID, startDateStr, endDateStr,pdNameStr, quantity );
+		sscanf( line, "%s%s%s%s%d", orderID, startDateStr, endDateStr, pdNameStr, &quantity);
 		// *********************
 		// * Check Here		   *
 		// *********************
-		addOrder(orderID, startDateStr, endDateStr,pdNameStr, quantity,queue);
+		addOrder(orderID, startDateStr, endDateStr,pdNameStr, quantity, queue);
 	}
 		fclose(file);
 	printf("**** End addBatchOrder ****\n");
