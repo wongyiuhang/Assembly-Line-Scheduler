@@ -17,7 +17,10 @@ int main(int argc, char *argv[]){
 	char command[100];
 	while(keepLoop){
 		printf("Please enter: \n");
-		scanf("%s",&command);
+		if (scanf("%[^\n]",&command)!=1){
+			printf("Command Error\n");
+			 // continue;			
+		}
 		switch(checkCommandExist(command)){
 			case 0:cm_addOrder(command);break;
 			case 1:cm_addBatchOrder(command);break;
