@@ -1,12 +1,10 @@
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <stdbool.h>
 
-#include "input.h"
 #include "struct.h"
 #include "global.h"
 
+#include "input.h"
 
 
 int main(int argc, char *argv[]){
@@ -16,6 +14,7 @@ int main(int argc, char *argv[]){
 	struct Queue* queue = newQueue();
 	bool keepLoop = true;	
 	char command[100];
+	struct Queue* queue = newQueue();
 	while(keepLoop){
 		printf("Please enter: \n");
 		if (scanf("%[^\n]",&command)!=1){
