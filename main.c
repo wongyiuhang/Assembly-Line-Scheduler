@@ -13,9 +13,10 @@ int main(int argc, char *argv[]){
 	printf("\n");
 	printf("\t\t ~~WELCOME TO ALS~~ \n");
 	printf("\n");
-
-
+	struct Product * pdHead = newProduct(); // product config initialize
+	initProdConfig(pdHead);
 	struct Queue* queue = newQueue(); // Order Queue
+
 	int table[3][60] = { 0 }; // Schedule tabel
 	bool keepLoop = true;	
 	char command[100];
@@ -23,12 +24,12 @@ int main(int argc, char *argv[]){
 		printf("Please enter: \n");
 		if (scanf("%[^\n]",&command)!=1){
 			printf("Command Error\n");
-			 // continue;			
+			 continue;			
 		}
 		switch(checkCommandExist(command)){
-			case 0:cm_addOrder(command,queue);break;
-			case 1:cm_addBatchOrder(command,queue);break;
-			case 2:cm_runAls(command);break;
+			case 0:cm_addOrder(command,queue,pdHead);break;
+			case 1:cm_addBatchOrder(command,queue,pdHead);break;
+			case 2:cm_runAls(command,pdHead);break;
 			case 3:cm_printReport(command);break;
 			case 4:endProgram();break;
 		}
@@ -36,3 +37,6 @@ int main(int argc, char *argv[]){
 	}
 
 }
+
+
+// addOrder R0001 D023 D025 Product_B 300
