@@ -1,20 +1,24 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <stdbool.h>
 
+#include "input.h"
 #include "struct.h"
 #include "global.h"
 
-#include "input.h"
 
 
 int main(int argc, char *argv[]){
 	printf("\n");
 	printf("\t\t ~~WELCOME TO ALS~~ \n");
 	printf("\n");
-	struct Queue* queue = newQueue();
+
+
+	struct Queue* queue = newQueue(); // Order Queue
+	int table[3][60] = { 0 }; // Schedule tabel
 	bool keepLoop = true;	
 	char command[100];
-	struct Queue* queue = newQueue();
 	while(keepLoop){
 		printf("Please enter: \n");
 		if (scanf("%[^\n]",&command)!=1){
