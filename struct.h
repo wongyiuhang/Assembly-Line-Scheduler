@@ -2,6 +2,20 @@
 #include <string.h>
 
 #pragma once
+/*************************
+ *                       *
+ *   Product structure   *
+ *                       *
+ *************************/
+
+struct Product {
+	int id;
+	char nameStr[10];
+	char name;
+	int *equipments;
+	int equipmentCount;
+	struct Product* next;
+} product_t;
 
 
 /*************************
@@ -10,6 +24,7 @@
  *                       *
  *************************/
 struct Order {
+	int id; // number of order
 	char orderID[6];
 	char startDateStr[5];
 	char endDateStr[5];
@@ -18,9 +33,7 @@ struct Order {
 	char pdName;	
 	int startDate; 
 	int endDate;
-	int id; // number of order
 	int remainDay; // number of order
-
 } order_t;
 
 struct Node {
@@ -42,6 +55,11 @@ struct Queue* newQueue() {
 	struct Queue* obj = malloc(sizeof(queue_t));
 	obj->head = NULL;
 	obj->tail = NULL;
+	return obj;
+}
+struct Product* newProduct() {
+	struct Product* obj = malloc(sizeof(product_t));
+	obj->next = NULL;
 	return obj;
 }
 
@@ -171,4 +189,39 @@ void printQueue(const struct Queue* queue) {
 
 	printf("===============\n");
 	printf("===============\n\n");
+}
+
+void productPush(struct Product * head, struct Product * newPd) {
+
+	struct Product * current = head;
+	while (current->next != NULL) {
+		current = current->next;
+	}
+	current->next = malloc(sizeof(product_t));
+	memcpy(current->next, newPd, sizeof(product_t));
+}
+void printProductList(struct Product * head) {
+	printf("***************\n");
+	printf("*             *\n");
+	printf("*    DEBUG    *\n");
+	printf("*             *\n");
+	printf("***************\n\n");
+	printf("**************print Product*************\n");
+
+	struct Product * current = head;
+	int i ;
+	while (current != NULL) {
+		printf("Product id : %d\n", current->id);
+		printf("Product name : %c\n", current->name);
+		printf("Product nameStr : %c\n", current->nameStr);
+		printf(" --- Product equipments  --- \n");
+		for (i = 0; i < current->equipmentCount; i++)
+		{
+			printf("%d, ",current->equipments[i]);
+		}
+			printf("\n");
+
+		current = current->next;
+	}
+	printf("**************End Product*************\n");
 }
