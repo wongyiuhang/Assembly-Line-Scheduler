@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 #pragma once
 /*************************
@@ -28,7 +29,8 @@ struct Order {
 	char orderID[6];
 	char startDateStr[5];
 	char endDateStr[5];
-	char pdNameStr[10];	
+	char pdNameStr[10];
+	struct Product* prod;
 	int quantity;
 	char pdName;	
 	int startDate; 
@@ -103,6 +105,26 @@ struct Order dequeue(struct Queue* queue) {
 
 	return result;
 }
+struct Product * searchProduct(struct Product * head,char name){
+	struct Product * current = head->next;
+	while (current != NULL) {
+		if (name == current->name){				
+			return current;
+		}	
+		current = current->next;
+	}
+	return NULL;
+}
+bool orderExist(struct Queue* queue,char * orderID){
+	const struct Node* nextNode = queue->head;
+	while(nextNode != NULL) {
+		if (strcmp(orderID,nextNode->data.orderID) == 0){
+			return true;
+		}
+		nextNode = nextNode->next;
+	}
+	return false;
+}
 
 int countQueue(struct Queue* queue) {
 	// Error checking
@@ -175,14 +197,27 @@ void printQueue(const struct Queue* queue) {
 	printf("tail -> %p\n\n", queue->tail);
 
 	const struct Node* nextNode = queue->head;
-	int i = 0;
+	int i = 0,j;
 	while(nextNode != NULL) {
 		printf("========== NODE %d ==========\n", i);
 		printf("orderID: %s\n", nextNode->data.orderID);
 		printf("startDateStr: %s\n", nextNode->data.startDateStr);
 		printf("endDateStr: %s\n", nextNode->data.endDateStr);
 		printf("pdNameStr: %s\n", nextNode->data.pdNameStr);
+
 		printf("quantity: %d\n\n", nextNode->data.quantity);
+		printf("********** NODE->Product %d ***********\n");
+		printf("product nameStr: %s\n", nextNode->data.prod->nameStr);
+		printf("product name: %c\n", nextNode->data.prod->name);
+		printf("product nameStr: %s\n", nextNode->data.prod->nameStr);
+		printf("product equipments: %d items\n", nextNode->data.prod->equipmentCount);
+
+		for (j = 0; j <  nextNode->data.prod->equipmentCount; j++)
+		{
+			printf("%d ", nextNode->data.prod->equipments[j]);
+		}
+		printf("\n");
+
 		i++;
 		nextNode = nextNode->next;
 	}
@@ -213,7 +248,7 @@ void printProductList(struct Product * head) {
 	while (current != NULL) {
 		printf("Product id : %d\n", current->id);
 		printf("Product name : %c\n", current->name);
-		printf("Product nameStr : %c\n", current->nameStr);
+		printf("Product nameStr : %s\n", current->nameStr);
 		printf(" --- Product equipments  --- \n");
 		for (i = 0; i < current->equipmentCount; i++)
 		{
@@ -224,4 +259,19 @@ void printProductList(struct Product * head) {
 		current = current->next;
 	}
 	printf("**************End Product*************\n");
+}
+
+bool checkEqiuipConflict(struct Product* a, struct Product* b ){
+	int i , j;
+	int max =( a->equipmentCount > b->equipmentCount )? a->equipmentCount : b->equipmentCount;
+
+	for (i = 0; i < a->equipmentCount; i++)
+	{
+		for (j = 0; j < b->equipmentCount; ++j)
+		{
+			if (a->equipments[i] == b->equipments[j])
+				return true;
+		}
+	}
+	return false;
 }

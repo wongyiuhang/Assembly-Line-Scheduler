@@ -2,25 +2,34 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-
 #include "struct.h"
 #pragma once
 
-
-void addOrder(char *orderID, char *startDateStr, char *endDateStr,char *pdNameStr,int quantity,struct Queue* queue){
+void addOrder(char* orderID, char* startDateStr, char* endDateStr, char* pdNameStr, int quantity, struct Queue* q, struct Product* pdhead){
 	struct Order newOrder; 
 	printf("**** addOrder ****\n");
-
-	// save orderData as string
+	if (orderExist(q,orderID)){
+		printf("This order was existed\n");
+		return;
+	}
 	strcpy(newOrder.startDateStr,startDateStr);
 	strcpy(newOrder.endDateStr,endDateStr);
 	strcpy(newOrder.pdNameStr,pdNameStr);
 	strcpy(newOrder.orderID,orderID);
-
-	// save orderData as int
 	startDateStr[0] = '0';
 	endDateStr[0]   = '0';
 	orderID[0]      = '0';
+
+	if (atoi(endDateStr)>60){
+		printf("This order was out of end date\n");
+		return;
+	}
+
+
+	// save orderData as string
+
+	// save orderData as int
+
 	printf("startDateStr : %s\n",startDateStr );
 	printf("endDateStr : %s\n",endDateStr );
 	printf("orderID : %s\n",orderID );
@@ -30,7 +39,9 @@ void addOrder(char *orderID, char *startDateStr, char *endDateStr,char *pdNameSt
 	newOrder.id        = atoi(orderID);
 	newOrder.quantity  = quantity;
 	newOrder.pdName    = pdNameStr[strlen(pdNameStr)-1];
-	enqueue(queue, &newOrder);
+	newOrder.prod      = searchProduct(pdhead, newOrder.pdName);
+	printf("product : %s\n",newOrder.prod->nameStr );
+	enqueue(q, &newOrder);
 
 	// printf("queue %d\n",queue->head->data.quantity);
 
@@ -72,8 +83,6 @@ int checkCommandExist(char * inStr){
 	int firstSpace = getFirstSpace(inStr);
 	substr(firComPart, inStr, 0, firstSpace);
 	printf("%s\n",firComPart);
-
-	sleep(3);
 	for ( i = 0; i < 5; i++){
 		if (strcmp(firComPart,commandSet[i]) == 0)
 		{				
@@ -91,7 +100,7 @@ void cm_addOrder(char * command,struct Queue* queue,struct Product * products){
 
 	char orderID[6], startDateStr[5],endDateStr[5], pdNameStr[10],pdName;	
 	int quantity,startDate,endDate,id; 
-	sscanf( command, "addOrder %s%s%s%s%d", orderID, startDateStr, endDateStr,pdNameStr, &quantity );
+	sscanf( command, "addOrder %s%s%s%s%d", orderID, startDateStr, endDateStr,pdNameStr, &quantity);
 	startDateStr[4] = 0;
 	endDateStr[4]   = 0;
 	orderID[5]      = 0;
@@ -99,7 +108,7 @@ void cm_addOrder(char * command,struct Queue* queue,struct Product * products){
 	// *********************
 	// * Check Here		   *
 	// *********************
-	addOrder(orderID, startDateStr, endDateStr,pdNameStr, quantity ,queue);
+	addOrder(orderID, startDateStr, endDateStr,pdNameStr, quantity ,queue, products);
 	sleep(3);
 }
 // read addBatchOrder Command and parameter checking 
@@ -109,8 +118,6 @@ void cm_addBatchOrder(char * command,struct Queue* queue,struct Product * produc
 	int quantity;
 	sscanf( command, "addBatchOrder  %s ", fileName);
 	printf("fileName : %s\n",fileName );
-
-
 	FILE *file;
 	file = fopen(fileName, "r");
 	while (fgets(line, sizeof(line), file)) {
@@ -118,9 +125,9 @@ void cm_addBatchOrder(char * command,struct Queue* queue,struct Product * produc
 		// *********************
 		// * Check Here		   *
 		// *********************
-		addOrder(orderID, startDateStr, endDateStr,pdNameStr, quantity, queue);
+		addOrder(orderID, startDateStr, endDateStr,pdNameStr, quantity, queue,products);
 	}
-		fclose(file);
+	fclose(file);
 	printf("**** End addBatchOrder ****\n");
 }
 // read printReort Command
@@ -185,7 +192,7 @@ void cm_runAls(char * command,struct Product * products){
 
 int compare( const void* a, const void* b)
 {
-     return ( *(int*)a - *(int*)b );
+	return ( *(int*)a - *(int*)b );
 }
 
 void initProdConfig(struct Product * pdHead){
@@ -216,7 +223,7 @@ void initProdConfig(struct Product * pdHead){
 		productPush(pdHead,newPd);
 	}
 
-		fclose(file);
+	fclose(file);
 
 }
 
