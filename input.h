@@ -2,25 +2,34 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-
 #include "struct.h"
 #pragma once
 
-
-void addOrder(char *orderID, char *startDateStr, char *endDateStr,char *pdNameStr,int quantity,struct Queue* queue){
+void addOrder(char* orderID, char* startDateStr, char* endDateStr, char* pdNameStr, int quantity, struct Queue* q, struct Product* pdhead){
 	struct Order newOrder; 
 	printf("**** addOrder ****\n");
-
-	// save orderData as string
+	if (orderExist(q,orderID)){
+		printf("This order was existed\n");
+		return;
+	}
 	strcpy(newOrder.startDateStr,startDateStr);
 	strcpy(newOrder.endDateStr,endDateStr);
 	strcpy(newOrder.pdNameStr,pdNameStr);
 	strcpy(newOrder.orderID,orderID);
-
-	// save orderData as int
 	startDateStr[0] = '0';
 	endDateStr[0]   = '0';
 	orderID[0]      = '0';
+
+	if (atoi(endDateStr)>60){
+		printf("This order was out of end date\n");
+		return;
+	}
+
+
+	// save orderData as string
+
+	// save orderData as int
+
 	printf("startDateStr : %s\n",startDateStr );
 	printf("endDateStr : %s\n",endDateStr );
 	printf("orderID : %s\n",orderID );
@@ -30,7 +39,9 @@ void addOrder(char *orderID, char *startDateStr, char *endDateStr,char *pdNameSt
 	newOrder.id        = atoi(orderID);
 	newOrder.quantity  = quantity;
 	newOrder.pdName    = pdNameStr[strlen(pdNameStr)-1];
-	enqueue(queue, &newOrder);
+	newOrder.prod      = searchProduct(pdhead, newOrder.pdName);
+	printf("product : %s\n",newOrder.prod->nameStr );
+	enqueue(q, &newOrder);
 
 	// printf("queue %d\n",queue->head->data.quantity);
 
@@ -50,11 +61,12 @@ void endProgram(){
 }
 
 
-
+// function substring (result string , soucre string . strat index , last index)
 void substr(char *dest, const char* src, unsigned int start, unsigned int cnt) {
 	strncpy(dest, src + start, cnt);
 	dest[cnt] = 0;
 }
+// substring (result string )
 int getFirstSpace(char * inStr){
 	int i ;
 	for (i = 0; i < strlen(inStr); i++){
@@ -64,15 +76,13 @@ int getFirstSpace(char * inStr){
 	}
 	return  strlen(inStr)-1;
 }
-
 int checkCommandExist(char * inStr){
 	const char *commandSet[] = {"addOrder","addBatchOrder","runALS","printReport","endProgram"};	
 	int i ;
 	char firComPart[20];
 	int firstSpace = getFirstSpace(inStr);
 	substr(firComPart, inStr, 0, firstSpace);
-
-	
+	printf("%s\n",firComPart);
 	for ( i = 0; i < 5; i++){
 		if (strcmp(firComPart,commandSet[i]) == 0)
 		{				
@@ -84,14 +94,13 @@ int checkCommandExist(char * inStr){
 
 
 
-// addOrder command Reading and Check
-
-void cm_addOrder(char * command,struct Queue* queue){
+// read addOrder Command and parameter checking 
+void cm_addOrder(char * command,struct Queue* queue,struct Product * products){
 	printf("Command : %s\n",command );
 
 	char orderID[6], startDateStr[5],endDateStr[5], pdNameStr[10],pdName;	
 	int quantity,startDate,endDate,id; 
-	sscanf( command, "addOrder %s%s%s%s%d", orderID, startDateStr, endDateStr,pdNameStr, &quantity );
+	sscanf( command, "addOrder %s%s%s%s%d", orderID, startDateStr, endDateStr,pdNameStr, &quantity);
 	startDateStr[4] = 0;
 	endDateStr[4]   = 0;
 	orderID[5]      = 0;
@@ -99,16 +108,16 @@ void cm_addOrder(char * command,struct Queue* queue){
 	// *********************
 	// * Check Here		   *
 	// *********************
-	addOrder(orderID, startDateStr, endDateStr,pdNameStr, quantity ,queue);
+	addOrder(orderID, startDateStr, endDateStr,pdNameStr, quantity ,queue, products);
+	sleep(3);
 }
-void cm_addBatchOrder(char * command,struct Queue* queue){
+// read addBatchOrder Command and parameter checking 
+void cm_addBatchOrder(char * command,struct Queue* queue,struct Product * products){
 	char fileName[30],orderID[6], startDateStr[5],endDateStr[5], pdNameStr[10],pdName;	
 	char line[256];
 	int quantity;
 	sscanf( command, "addBatchOrder  %s ", fileName);
 	printf("fileName : %s\n",fileName );
-
-
 	FILE *file;
 	file = fopen(fileName, "r");
 	while (fgets(line, sizeof(line), file)) {
@@ -116,12 +125,12 @@ void cm_addBatchOrder(char * command,struct Queue* queue){
 		// *********************
 		// * Check Here		   *
 		// *********************
-		addOrder(orderID, startDateStr, endDateStr,pdNameStr, quantity, queue);
+		addOrder(orderID, startDateStr, endDateStr,pdNameStr, quantity, queue,products);
 	}
-		fclose(file);
+	fclose(file);
 	printf("**** End addBatchOrder ****\n");
 }
-
+// read printReort Command
 void cm_printReport(char * command){
 	char fileName[30], line[256];
 	sscanf( command, "printReport > %s  ", fileName);
@@ -135,8 +144,8 @@ void cm_printReport(char * command){
 
 	fclose(file);
 }
-
-void cm_runAls(char * command){
+// read runAls Command
+void cm_runAls(char * command,struct Product * products){
 
 
 	char fileName[30],algo[6],algopar,dummy[50];
@@ -179,67 +188,42 @@ void cm_runAls(char * command){
 	// *********************
 
 	// fclose(file);
-	
 }
 
-// void getFileNameInCommand(char* string,char *fileName) {
-// 	int i, start, last, maxSpaceCount = 0;
-// 	// char dest[50];
+int compare( const void* a, const void* b)
+{
+	return ( *(int*)a - *(int*)b );
+}
 
-// 	for (i = strlen(string)-1 ; i <0 ; i--)
-// 	{
-// 		if (string[i] == ' ') {
-// 			substr(fileName, string, i, strlen(string)-1);
-// 			fileName[strlen(fileName)] = '\0';
-// 		}
-// 	}
+void initProdConfig(struct Product * pdHead){
+	char line[256],nameStr[10],dummy[100],name;
+	int *equipPtr,equipCount;
+	int i,j,index;
+	struct Product* newPd;
+	FILE *file;
+	file = fopen("product.config", "r");
+	for ( index = 1; fgets(line, sizeof(line), file) ; index++)
+	{
+		sscanf( line, "%9s:%d,%s", nameStr,&equipCount,dummy);
+		name = nameStr[8];	
+		nameStr[strlen(nameStr)] = 0;	
+		equipPtr = malloc(equipCount * sizeof(int) );
 
-// }
+		for (i = 0, j = 10 ; i < equipCount ; i++ , j += 12)	
+			equipPtr[i] = dummy[j] - '0';
 
+		qsort( equipPtr, equipCount, sizeof(int), compare ); // sort array
 
-// void getAlgoInCommand(char* string,char *algo) {
-// 	int i, start = 0, last, maxSpaceCount = 0;
-// 	// char dest[50];
+		newPd->id = index;
+		strcpy(newPd->nameStr,nameStr);		// have some thing problem here
+		newPd->nameStr[strlen(nameStr)]	= 0;	
+		newPd->name = name;
+		newPd->equipments = equipPtr;
+		newPd->equipmentCount = equipCount;
+		productPush(pdHead,newPd);
+	}
 
-// 	for (i = 0 ; i <strlen(string)-1 ; i++)
-// 	{
-// 		if (string[i] == ' ') {
-// 			maxSpaceCount++;
-// 		}
-// 		if (string[i] == '-') {
-// 			start = i;
-// 		}
-// 		if (maxSpaceCount == 2) {
-// 			last = i;
-// 			break;
-// 		}
-// 	}
+	fclose(file);
 
-// 	substr(dest, string, start + 1, last);
-// 	algo[strlen(algo)] = '\0';		
-// }
-// void getAlgoPamInCommand(char* string,char *algopar) {
-// 	int i, start = 0, last, maxSpaceCount = 0;
-// 	// char dest[50];
+}
 
-// 	for (i = 0 ; i <strlen(string)-1 ; i++)
-// 	{
-// 		if (string[i] == ' ') {
-// 			maxSpaceCount++;
-// 		}
-// 		if (maxSpaceCount == 2) {
-// 			start = i;
-// 		}
-// 		if (maxSpaceCount == 3) {
-// 			start = i;
-// 			break;
-// 		}
-
-// 	}
-
-// 	substr(dest, string, start + 1, last);
-// 	algopar[strlen(algo)] = '\0';		
-// }
-// *********************
-// * Add Order		   *
-// *********************

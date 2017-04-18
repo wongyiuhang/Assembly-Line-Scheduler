@@ -1,7 +1,22 @@
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 #pragma once
+/*************************
+ *                       *
+ *   Product structure   *
+ *                       *
+ *************************/
+
+struct Product {
+	int id;
+	char nameStr[10];
+	char name;
+	int *equipments;
+	int equipmentCount;
+	struct Product* next;
+} product_t;
 
 
 /*************************
@@ -10,17 +25,17 @@
  *                       *
  *************************/
 struct Order {
+	int id; // number of order
 	char orderID[6];
 	char startDateStr[5];
 	char endDateStr[5];
-	char pdNameStr[10];	
+	char pdNameStr[10];
+	struct Product* prod;
 	int quantity;
 	char pdName;	
 	int startDate; 
 	int endDate;
-	int id; // number of order
 	int remainDay; // number of order
-
 } order_t;
 
 struct Node {
@@ -42,6 +57,11 @@ struct Queue* newQueue() {
 	struct Queue* obj = malloc(sizeof(queue_t));
 	obj->head = NULL;
 	obj->tail = NULL;
+	return obj;
+}
+struct Product* newProduct() {
+	struct Product* obj = malloc(sizeof(product_t));
+	obj->next = NULL;
 	return obj;
 }
 
@@ -84,6 +104,26 @@ struct Order dequeue(struct Queue* queue) {
 	queue->head = nextNode;
 
 	return result;
+}
+struct Product * searchProduct(struct Product * head,char name){
+	struct Product * current = head->next;
+	while (current != NULL) {
+		if (name == current->name){				
+			return current;
+		}	
+		current = current->next;
+	}
+	return NULL;
+}
+bool orderExist(struct Queue* queue,char * orderID){
+	const struct Node* nextNode = queue->head;
+	while(nextNode != NULL) {
+		if (strcmp(orderID,nextNode->data.orderID) == 0){
+			return true;
+		}
+		nextNode = nextNode->next;
+	}
+	return false;
 }
 
 int countQueue(struct Queue* queue) {
@@ -157,18 +197,81 @@ void printQueue(const struct Queue* queue) {
 	printf("tail -> %p\n\n", queue->tail);
 
 	const struct Node* nextNode = queue->head;
-	int i = 0;
+	int i = 0,j;
 	while(nextNode != NULL) {
 		printf("========== NODE %d ==========\n", i);
 		printf("orderID: %s\n", nextNode->data.orderID);
 		printf("startDateStr: %s\n", nextNode->data.startDateStr);
 		printf("endDateStr: %s\n", nextNode->data.endDateStr);
 		printf("pdNameStr: %s\n", nextNode->data.pdNameStr);
+
 		printf("quantity: %d\n\n", nextNode->data.quantity);
+		printf("********** NODE->Product %d ***********\n");
+		printf("product nameStr: %s\n", nextNode->data.prod->nameStr);
+		printf("product name: %c\n", nextNode->data.prod->name);
+		printf("product nameStr: %s\n", nextNode->data.prod->nameStr);
+		printf("product equipments: %d items\n", nextNode->data.prod->equipmentCount);
+
+		for (j = 0; j <  nextNode->data.prod->equipmentCount; j++)
+		{
+			printf("%d ", nextNode->data.prod->equipments[j]);
+		}
+		printf("\n");
+
 		i++;
 		nextNode = nextNode->next;
 	}
 
 	printf("===============\n");
 	printf("===============\n\n");
+}
+
+void productPush(struct Product * head, struct Product * newPd) {
+
+	struct Product * current = head;
+	while (current->next != NULL) {
+		current = current->next;
+	}
+	current->next = malloc(sizeof(product_t));
+	memcpy(current->next, newPd, sizeof(product_t));
+}
+void printProductList(struct Product * head) {
+	printf("***************\n");
+	printf("*             *\n");
+	printf("*    DEBUG    *\n");
+	printf("*             *\n");
+	printf("***************\n\n");
+	printf("**************print Product*************\n");
+
+	struct Product * current = head;
+	int i ;
+	while (current != NULL) {
+		printf("Product id : %d\n", current->id);
+		printf("Product name : %c\n", current->name);
+		printf("Product nameStr : %s\n", current->nameStr);
+		printf(" --- Product equipments  --- \n");
+		for (i = 0; i < current->equipmentCount; i++)
+		{
+			printf("%d, ",current->equipments[i]);
+		}
+			printf("\n");
+
+		current = current->next;
+	}
+	printf("**************End Product*************\n");
+}
+
+bool checkEqiuipConflict(struct Product* a, struct Product* b ){
+	int i , j;
+	int max =( a->equipmentCount > b->equipmentCount )? a->equipmentCount : b->equipmentCount;
+
+	for (i = 0; i < a->equipmentCount; i++)
+	{
+		for (j = 0; j < b->equipmentCount; ++j)
+		{
+			if (a->equipments[i] == b->equipments[j])
+				return true;
+		}
+	}
+	return false;
 }
