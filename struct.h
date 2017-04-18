@@ -267,7 +267,7 @@ bool checkEqiuipConflict(struct Product* a, struct Product* b ){
 
 	for (i = 0; i < a->equipmentCount; i++)
 	{
-		for (j = 0; j < b->equipmentCount; ++j)
+		for (j = i; j < b->equipmentCount; ++j)
 		{
 			if (a->equipments[i] == b->equipments[j])
 				return true;
