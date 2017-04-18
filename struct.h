@@ -19,6 +19,20 @@ struct Product {
 } product_t;
 
 
+/****************************
+ *                          *
+ *    Schedule structure    *
+ *                          *
+ ****************************/
+struct DayJob {
+	int orderID[3];
+} dayjob_t;
+
+struct Schedule {
+	struct DayJob days[60];
+} schedule_t;
+
+
 /*************************
  *                       *
  *    Queue structure    *
