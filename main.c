@@ -17,7 +17,7 @@ int main(int argc, char *argv[]){
 	initProdConfig(pdHead);
 	struct Queue* queue = newQueue(); // Order Queue
 
-	int table[3][60] = { 0 }; // Schedule tabel
+	int table[3][NUM_OF_DAY] = { 0 }; // Schedule tabel
 	bool keepLoop = true;	
 	// char command[100];
 

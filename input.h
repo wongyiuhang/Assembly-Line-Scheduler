@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include "struct.h"
+#include "global.h"
 #pragma once
 
 void addOrder(char* orderID, char* startDateStr, char* endDateStr, char* pdNameStr, int quantity, struct Queue* q, struct Product* pdhead){
@@ -20,7 +21,7 @@ void addOrder(char* orderID, char* startDateStr, char* endDateStr, char* pdNameS
 	endDateStr[0]   = '0';
 	orderID[0]      = '0';
 
-	if (atoi(endDateStr)>60){
+	if (atoi(endDateStr)>NUM_OF_DAY){
 		printf("This order was out of end date\n");
 		return;
 	}
