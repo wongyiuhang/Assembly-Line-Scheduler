@@ -3,6 +3,8 @@
 #include <string.h>
 #include <stdbool.h>
 #include "struct.h"
+#include "SRT.h"
+
 #pragma once
 
 void addOrder(char* orderID, char* startDateStr, char* endDateStr, char* pdNameStr, int quantity, struct Queue* q, struct Product* pdhead){
@@ -52,11 +54,20 @@ void addOrder(char* orderID, char* startDateStr, char* endDateStr, char* pdNameS
 // * end Projram	   *
 // *********************
 
-void endProgram(){
-
+void endProgram(struct Queue* queue,struct Product *pdHead){
 	// *********************
 	// * Free var here	   *
 	// *********************
+	clearQueue(queue);
+	struct Product * current = pdHead;
+	while(current != NULL) {
+		struct Product * temp = current;
+		current = current->next;
+		free(temp->equipments)
+		free(temp);
+	}
+
+
 	printf("Bye-bye!");
 }
 
@@ -145,7 +156,7 @@ void cm_printReport(char * command){
 	fclose(file);
 }
 // read runAls Command
-void cm_runAls(char * command,struct Product * products){
+void cm_runAls(char * command,struct Queue * queue,struct Schedule * resultScheduleTable){
 
 
 	char fileName[30],algo[6],algopar,dummy[50];
@@ -157,27 +168,38 @@ void cm_runAls(char * command,struct Product * products){
 		sscanf( dummy, "| printSchedule >%s\n",fileName );
 		printf("ALGO :%s\n",algo);
 		printf("fileName: %s\n",fileName);
+		strcpy(resultScheduleTable->algo,"FCFS");
+		// FCFS_algorithm(queue, fileName,resultScheduleTable);
+
+
 
 	}else if (strcmp(algo,"-PR") == 0){
 		sscanf(dummy," %c | printSchedule > %s",&algopar,fileName);   
 		printf("ALGO :%s\n",algo);
 		printf("algopar: %c\n",algopar);
 		printf("fileName: %s\n",fileName);
+		strcpy(resultScheduleTable->algo,"PR");
+
 	}else if (strcmp(algo,"-RR") == 0){
 		sscanf(dummy," %d | printSchedule > %s",&timeQuan,fileName); 
 		printf("ALGO :%s\n",algo);      
 		printf("timess: %d\n",timeQuan);
 		printf("fileName: %s\n",fileName);
+		strcpy(resultScheduleTable->algo,"RR");
+
 	}else if (strcmp(algo,"-SJF") == 0){
 		sscanf( dummy, "| printSchedule >%s\n",fileName );
 		printf("ALGO :%s\n",algo);
 		printf("fileName: %s\n",fileName);
+		strcpy(resultScheduleTable->algo,"SJT");
 
-	}else if (strcmp(algo,"-SRF") == 0){
+
+	}else if (strcmp(algo,"-SRT") == 0){
 		sscanf( dummy, "| printSchedule >%s\n",fileName );  
 		printf("ALGO :%s\n",algo);
 		printf("fileName: %s\n",fileName);
-
+		strcpy(resultScheduleTable->algo,"SRT");
+		SRT_algorithm(queue, fileName,resultScheduleTable);
 	}
 
 	// FILE *file;
