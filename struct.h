@@ -19,6 +19,20 @@ struct Product {
 } product_t;
 
 
+/****************************
+ *                          *
+ *    Schedule structure    *
+ *                          *
+ ****************************/
+struct DayJob {
+	int orderID[3];
+} dayjob_t;
+
+struct Schedule {
+	struct DayJob days[60];
+} schedule_t;
+
+
 /*************************
  *                       *
  *    Queue structure    *
@@ -290,7 +304,7 @@ bool checkEqiuipConflict(struct Product* a, struct Product* b ){
 
 	for (i = 0; i < a->equipmentCount; i++)
 	{
-		for (j = 0; j < b->equipmentCount; ++j)
+		for (j = i; j < b->equipmentCount; ++j)
 		{
 			if (a->equipments[i] == b->equipments[j])
 				return true;
