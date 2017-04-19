@@ -7,17 +7,13 @@
  *                                                 *
  ***************************************************/
 
-struct Schedule* SRT_algorithm(struct Queue* jobQueue) {
+void SRT_algorithm(struct Queue* jobQueue, char* outputPath, struct Schedule* resultScheduleTable) {
 	int day, line;
-	struct Schedule* scheduleTable = malloc(sizeof(schedule_t));
-	struct Queue* cloneJobQueue = jobQueue;
-	//cloneJobQueue = cloneQueue(jobQueue);
+	struct Queue* cloneJobQueue = cloneQueue(jobQueue);
 
 	for(day = 0; day < 60; day++) {
 		// Initialise value
 		for(line = 0; line < 3; line++)
-			scheduleTable->day[day].orderID[line] = -1;
+			resultScheduleTable->day[day].orderID[line] = -1;
 	}
-
-	return scheduleTable;
 }
