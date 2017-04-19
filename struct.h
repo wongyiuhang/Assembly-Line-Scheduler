@@ -77,7 +77,6 @@ struct Queue* newQueue() {
 struct Queue* cloneQueue(struct Queue* sourseQueue) {
 	const struct Node* nextNode = sourseQueue->head;
 	struct Queue* cloneQueue = newQueue();
-	struct Node* cloneNode = cloneQueue->head;
 	while(nextNode != NULL) {
 		enqueue(cloneQueue, &(nextNode->data));	
 		nextNode = nextNode->next;
