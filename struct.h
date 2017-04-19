@@ -73,6 +73,18 @@ struct Queue* newQueue() {
 	obj->tail = NULL;
 	return obj;
 }
+
+struct Queue* cloneQueue(struct Queue* sourseQueue) {
+	const struct Node* nextNode = sourseQueue->head;
+	struct Queue* cloneQueue = newQueue();
+	struct Node* cloneNode = cloneQueue->head;
+	while(nextNode != NULL) {
+		enqueue(cloneQueue, &(nextNode->data));	
+		nextNode = nextNode->next;
+	}
+	return cloneQueue;
+}
+
 struct Product* newProduct() {
 	struct Product* obj = malloc(sizeof(product_t));
 	obj->next = NULL;
@@ -126,6 +138,16 @@ struct Product * searchProduct(struct Product * head,char name){
 			return current;
 		}	
 		current = current->next;
+	}
+	return NULL;
+}
+struct Node * searchOrder(struct Queue * queue,int orderId){
+	struct Node* nextNode = queue->head;
+	while (nextNode != NULL) {
+		if (nextNode->data.id == orderId){				
+			return nextNode;
+		}	
+		nextNode = nextNode->next;
 	}
 	return NULL;
 }
@@ -214,13 +236,14 @@ void printQueue(const struct Queue* queue) {
 	int i = 0,j;
 	while(nextNode != NULL) {
 		printf("========== NODE %d ==========\n", i);
-		printf("orderID: %s\n", nextNode->data.orderID);
+		printf("NODE Data address: %p\n", nextNode->data);
+		printf("orderID: %s\n", nextNode->data.orderID);		
 		printf("startDateStr: %s\n", nextNode->data.startDateStr);
 		printf("endDateStr: %s\n", nextNode->data.endDateStr);
 		printf("pdNameStr: %s\n", nextNode->data.pdNameStr);
 
 		printf("quantity: %d\n\n", nextNode->data.quantity);
-		printf("********** NODE->Product %d ***********\n");
+		printf("********** NODE->Product ***********\n");
 		printf("product nameStr: %s\n", nextNode->data.prod->nameStr);
 		printf("product name: %c\n", nextNode->data.prod->name);
 		printf("product nameStr: %s\n", nextNode->data.prod->nameStr);
@@ -268,7 +291,7 @@ void printProductList(struct Product * head) {
 		{
 			printf("%d, ",current->equipments[i]);
 		}
-			printf("\n");
+		printf("\n");
 
 		current = current->next;
 	}
