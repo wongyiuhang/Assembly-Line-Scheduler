@@ -61,8 +61,9 @@ void endProgram(struct Queue* queue,struct Product *pdHead){
 	clearQueue(queue);
 	struct Product * current = pdHead;
 	while(current != NULL) {
-		struct Product * temp = current;		
+		struct Product * temp = current;
 		current = current->next;
+		free(temp->equipments)
 		free(temp);
 	}
 

@@ -126,7 +126,6 @@ struct Order dequeue(struct Queue* queue) {
 	// Dequeue
 	struct Node* nextNode;
 	nextNode = queue->head->next;
-	free(queue->head->data.prod->equipments);
 	free(queue->head);
 	queue->head = nextNode;
 
@@ -214,7 +213,6 @@ void clearQueue(struct Queue* queue) {
 	// Clear node
 	while(nextNode != NULL) {
 		struct Node* temp = nextNode->next;
-		free(nextNode->data.prod->equipments);
 		free(nextNode);
 		nextNode = temp;
 	}
