@@ -14,6 +14,6 @@ void SRT_algorithm(struct Queue* jobQueue, char* outputPath, struct Schedule* re
 	for(day = 0; day < 60; day++) {
 		// Initialise value
 		for(line = 0; line < 3; line++)
-			resultScheduleTable->day[day].orderID[line] = -1;
+			resultScheduleTable->days[day].orderID[line] = -1;
 	}
 }
