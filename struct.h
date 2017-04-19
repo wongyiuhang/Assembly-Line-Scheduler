@@ -65,19 +65,11 @@ struct Queue* cloneQueue(struct Queue* sourseQueue) {
 	struct Queue* cloneQueue = newQueue();
 	struct Node* cloneNode = cloneQueue->head;
 	while(nextNode != NULL) {
-		struct Node* tempNode = (struct Node*)malloc(sizeof(node_t));
-		memcpy(tempNode,nextNode,sizeof(node_t));
-		cloneNode = tempNode;
-		if (cloneQueue->head == NULL)
-			cloneQueue->head = tempNode;
-
+		enqueue(cloneQueue, &(nextNode->data));	
 		nextNode = nextNode->next;
-		cloneNode = cloneNode->next;
-		cloneQueue->tail = tempNode;
 	}
 	return cloneQueue;
 }
-
 
 struct Product* newProduct() {
 	struct Product* obj = malloc(sizeof(product_t));
@@ -132,6 +124,16 @@ struct Product * searchProduct(struct Product * head,char name){
 			return current;
 		}	
 		current = current->next;
+	}
+	return NULL;
+}
+struct Node * searchOrder(struct Queue * queue,int orderId){
+	struct Node* nextNode = queue->head;
+	while (nextNode != NULL) {
+		if (nextNode->data.id == orderId){				
+			return nextNode;
+		}	
+		nextNode = nextNode->next;
 	}
 	return NULL;
 }
