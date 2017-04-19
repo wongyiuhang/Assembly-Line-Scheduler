@@ -30,6 +30,7 @@ struct DayJob {
 
 struct Schedule {
 	struct DayJob days[NUM_OF_DAY];
+	char algo[10];
 } schedule_t;
 
 
