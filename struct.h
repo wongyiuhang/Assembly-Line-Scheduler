@@ -2,6 +2,8 @@
 #include <string.h>
 #include <stdbool.h>
 
+#include "global.h"
+
 #pragma once
 /*************************
  *                       *
@@ -75,16 +77,6 @@ struct Queue* newQueue() {
 	return obj;
 }
 
-struct Queue* cloneQueue(struct Queue* sourseQueue) {
-	const struct Node* nextNode = sourseQueue->head;
-	struct Queue* cloneQueue = newQueue();
-	while(nextNode != NULL) {
-		enqueue(cloneQueue, &(nextNode->data));	
-		nextNode = nextNode->next;
-	}
-	return cloneQueue;
-}
-
 struct Product* newProduct() {
 	struct Product* obj = malloc(sizeof(product_t));
 	obj->next = NULL;
@@ -131,6 +123,17 @@ struct Order dequeue(struct Queue* queue) {
 
 	return result;
 }
+
+struct Queue* cloneQueue(struct Queue* sourseQueue) {
+	const struct Node* nextNode = sourseQueue->head;
+	struct Queue* cloneQueue = newQueue();
+	while(nextNode != NULL) {
+		enqueue(cloneQueue, &(nextNode->data));
+		nextNode = nextNode->next;
+	}
+	return cloneQueue;
+}
+
 struct Product * searchProduct(struct Product * head,char name){
 	struct Product * current = head->next;
 	while (current != NULL) {
@@ -271,6 +274,7 @@ void productPush(struct Product * head, struct Product * newPd) {
 	}
 	current->next = malloc(sizeof(product_t));
 	memcpy(current->next, newPd, sizeof(product_t));
+	current->next->next = NULL;
 }
 void printProductList(struct Product * head) {
 	printf("***************\n");
