@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include "struct.h"
+#include "global.h"
 #include "SRT.h"
 
 #pragma once
@@ -22,7 +23,7 @@ void addOrder(char* orderID, char* startDateStr, char* endDateStr, char* pdNameS
 	endDateStr[0]   = '0';
 	orderID[0]      = '0';
 
-	if (atoi(endDateStr)>60){
+	if (atoi(endDateStr)>NUM_OF_DAY){
 		printf("This order was out of end date\n");
 		return;
 	}
@@ -63,7 +64,7 @@ void endProgram(struct Queue* queue,struct Product *pdHead){
 	while(current != NULL) {
 		struct Product * temp = current;
 		current = current->next;
-		free(temp->equipments)
+		free(temp->equipments);
 		free(temp);
 	}
 
@@ -120,7 +121,6 @@ void cm_addOrder(char * command,struct Queue* queue,struct Product * products){
 	// * Check Here		   *
 	// *********************
 	addOrder(orderID, startDateStr, endDateStr,pdNameStr, quantity ,queue, products);
-	sleep(3);
 }
 // read addBatchOrder Command and parameter checking 
 void cm_addBatchOrder(char * command,struct Queue* queue,struct Product * products){
@@ -221,28 +221,26 @@ void initProdConfig(struct Product * pdHead){
 	char line[256],nameStr[10],dummy[100],name;
 	int *equipPtr,equipCount;
 	int i,j,index;
-	struct Product* newPd;
+	struct Product newPd;
 	FILE *file;
 	file = fopen("product.config", "r");
 	for ( index = 1; fgets(line, sizeof(line), file) ; index++)
 	{
 		sscanf( line, "%9s:%d,%s", nameStr,&equipCount,dummy);
-		name = nameStr[8];	
-		nameStr[strlen(nameStr)] = 0;	
+		name = nameStr[8];
 		equipPtr = malloc(equipCount * sizeof(int) );
 
-		for (i = 0, j = 10 ; i < equipCount ; i++ , j += 12)	
+		for (i = 0, j = 10 ; i < equipCount ; i++ , j += 12)
 			equipPtr[i] = dummy[j] - '0';
 
 		qsort( equipPtr, equipCount, sizeof(int), compare ); // sort array
 
-		newPd->id = index;
-		strcpy(newPd->nameStr,nameStr);		// have some thing problem here
-		newPd->nameStr[strlen(nameStr)]	= 0;	
-		newPd->name = name;
-		newPd->equipments = equipPtr;
-		newPd->equipmentCount = equipCount;
-		productPush(pdHead,newPd);
+		newPd.id = index;
+		strcpy(newPd.nameStr,nameStr);
+		newPd.name = name;
+		newPd.equipments = equipPtr;
+		newPd.equipmentCount = equipCount;
+		productPush(pdHead,&newPd);
 	}
 
 	fclose(file);

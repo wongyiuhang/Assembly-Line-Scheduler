@@ -3,10 +3,10 @@
 #include <string.h>
 #include <stdbool.h>
 
-#include "struct.h"
+//#include "struct.h"
 #include "input.h"
-#include "global.h"
-#include "SRT.h"
+//#include "global.h"
+//#include "SRT.h"
 
 
 
@@ -32,10 +32,11 @@ int main(int argc, char *argv[]){
 
 
 	while(keepLoop){
-		printf("Please enter: \n");
+		printf("Please enter: ");
+		fflush(stdout);
 		if (scanf("%[^\n]",command)!=1){
 			printf("Command Error\n");
-			 continue;			
+			continue;
 		}
 		switch(checkCommandExist(command)){
 			case 0:cm_addOrder(command,queue,pdHead);break;
@@ -63,7 +64,7 @@ int main(int argc, char *argv[]){
 	// printf("pdNameStr: %s\n", test->data.pdNameStr);
 
 
-
+	return 0;
 }	
 
 

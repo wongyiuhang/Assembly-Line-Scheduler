@@ -1,0 +1,2 @@
+#define NUM_OF_DAY 60
+#define PRODUCT_PER_DAY 1000
