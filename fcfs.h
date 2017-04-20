@@ -18,10 +18,7 @@ int fcfs(struct Queue* jobQueue, char* outputPath, struct Schedule* resultSchedu
 	
 	//Current Date of process
 	int currentDate;
-	
-	//process
-	
-	
+		
 	//handle the first process in queue
 	Order handleprocess = dequeue(jobQueue);
 	Order running_process[3];
@@ -37,7 +34,6 @@ int fcfs(struct Queue* jobQueue, char* outputPath, struct Schedule* resultSchedu
 	
 	
 	
-				handleprocess = dequeue(order);
 	//********************************************************************************************	
 
 
