@@ -1,3 +1,6 @@
+#include <stdbool.h>
+#include <string.h>
+
 #include "struct.h"
 #include "global.h"
 
@@ -10,15 +13,23 @@
  *                                                 *
  ***************************************************/
 
-int SRT_notRepeat(int orderID, const struct DayJob* dayJob) {
+int SRT_notRepeat(int orderID, const struct Order* todayOrder[3]) {
 	int i;
 	for(i = 0; i < 3; i++)
-		if(orderID == dayJob->orderID[i])
+		if(todayOrder[i] != NULL && orderID == todayOrder[i]->id)
 			return 0;
 	return 1;
 }
 
-struct Node* SRT_find(const struct Queue* jobQueue, int day, const struct DayJob* today) {
+int SRT_notConflict(const struct Order* order, const struct Order* todayOrder[3]) {
+	int i;
+	for(i = 0; i < 3; i++)
+		if(todayOrder[i] != NULL && checkEqiuipConflict(order->prod, todayOrder[i]->prod))
+			return 0;
+	return 1;
+}
+
+struct Node* SRT_find(const struct Queue* jobQueue, int day, const struct Order* today[3]) {
 	struct Node* nextNode = jobQueue->head;
 	struct Node* SRT = NULL;
 	while (nextNode != NULL) {
@@ -28,6 +39,8 @@ struct Node* SRT_find(const struct Queue* jobQueue, int day, const struct DayJob
 			nextNode->data.remainDay > 0 // Reject finished order
 			&&
 			SRT_notRepeat(nextNode->data.id, today)
+			&&
+			SRT_notConflict(&nextNode->data, today)
 			&&
 			(
 				SRT == NULL // For the first iteration
@@ -45,6 +58,7 @@ void SRT_algorithm(struct Queue* jobQueue, char* outputPath, struct Schedule* re
 	int day, line;
 	struct Queue* cloneJobQueue = cloneQueue(jobQueue);
 	struct Node* nodePointer = cloneJobQueue->head;
+	strcpy(resultScheduleTable->algo, "SRT");
 
 	// Initialise remain day value
 	while(nodePointer != NULL){
@@ -60,12 +74,12 @@ void SRT_algorithm(struct Queue* jobQueue, char* outputPath, struct Schedule* re
 		struct Order* todayOrder[3];
 		for(line = 0; line < 3; line++) {
 			todayOrder[line] = NULL;
-			today->orderID[line] = -1;
+			today->orderID[line] = 0;
 		}
 
 		// Find shortest remain time
 		for(line = 0; line < 3; line++) {
-			nodePointer = SRT_find(jobQueue, day, today);
+			nodePointer = SRT_find(jobQueue, day, todayOrder);
 			if(nodePointer == NULL)
 				break;
 			today->orderID[line] = nodePointer->data.id;

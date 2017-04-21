@@ -1,0 +1,14 @@
+addOrder R0001 D001 D010 Product_A 5000
+addOrder R0002 D002 D015 Product_B 15000
+addOrder R0003 D006 D019 Product_A 9000
+addOrder R0004 D010 D016 Product_A 5000
+
+addBatchOrder batch_Order_01.dat
+
+runALS -PR n | printSchedule > ALS_Priority_01.txt
+runALS -FCFS n | printSchedule > ALS_FCFS_01.txt
+
+printReport > ALS_Report_02.txt
+
+
+endProgram
