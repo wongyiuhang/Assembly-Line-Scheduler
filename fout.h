@@ -19,7 +19,7 @@ void fileOutput(int fd[2], char* algo, char* filePath, struct Schedule* schedule
 	for(i = 0; i < NUM_OF_DAY; i++) {
 		if(read(fd[0], &buffer, sizeof(dayjob_t)) < 1)
 			break;
-		memcpy(&scheduleTable->days[i], &buffer);
+		memcpy(&scheduleTable->days[i], &buffer, sizeof(dayjob_t));
 		char day[3][6];
 		for(j = 0; j < 3; j++) {
 			if(buffer.orderID[j] == 0)
