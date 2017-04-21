@@ -1,18 +1,15 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
 
 #include "struct.h"
-//first: handle the array / linked list that store the process: when time comes, put the process in queue
 //assume order are ordered by start date
-//second: run the process according to the order(give to the child) (if child1 return free, run the process, otherwise child2, otherwise child3, otherwise continue)
 void fcfs(struct Queue* jobQueue, char* outputPath, struct Schedule* resultScheduleTable, struct Product* pdHead){
 	//********************************************************************************************
 	// Initialization
 	
-	static const struct Order EmptyOrder = {0,"","","","",NULL,0,"",0,0,0};
+	static const struct Order* EmptyOrder = {0,'\0','\0','\0','\0',NULL,0,'\0',0,0,0};
 	struct Schedule sixtydaysschedule;
 	// FCFS algorithm, assume jobQueue's job start date is in ascending order
 	struct Queue* cloneJobQueue = cloneQueue(jobQueue);
@@ -24,7 +21,7 @@ void fcfs(struct Queue* jobQueue, char* outputPath, struct Schedule* resultSched
 	//handle the first process in queue
 	struct Order handleprocess = dequeue(cloneJobQueue);
 	struct Order running_process[3];
-	
+		
 	//create pipe and child and initialize them
 	int fd[2], pid;
 	pid = fork();
@@ -33,8 +30,6 @@ void fcfs(struct Queue* jobQueue, char* outputPath, struct Schedule* resultSched
 	else if ( pid > 0 ) { close(fd[1]);}
 	//parent process
 	else { close(fd[0]);}
-	
-	
 	
 	//********************************************************************************************	
 
@@ -45,21 +40,26 @@ void fcfs(struct Queue* jobQueue, char* outputPath, struct Schedule* resultSched
 	
 			
 		//end of last day.  Process time needed for each process minus 1.
+		
 		if(running_process[0].remainDay > 0 ) {running_process[0].remainDay--;}
 		if(running_process[1].remainDay > 0 ) {running_process[1].remainDay--;}
 		if(running_process[2].remainDay > 0 ) {running_process[2].remainDay--;}
 		
 		//check whether endtime come or the process is running.  If end time come, drop the process
-		if (running_process[0].remainDay < 0 || running_process[0].endDate == currentDate) {
-			running_process[0] = EmptyOrder;}
-		if (running_process[1].remainDay < 0 || running_process[1].endDate == currentDate) {
-			running_process[1] = EmptyOrder;}
-		if (running_process[2].remainDay < 0 || running_process[2].endDate == currentDate) {
-			running_process[2] = EmptyOrder;}
+		if (running_process[0].remainDay < 0 || running_process[0].endDate == currentDate) {running_process[0] = EmptyOrder;}
+		if (running_process[1].remainDay < 0 || running_process[1].endDate == currentDate) {running_process[1] = EmptyOrder;}
+		if (running_process[2].remainDay < 0 || running_process[2].endDate == currentDate) {running_process[2] = EmptyOrder;}
 		
 		// Handle new coming process
 		while (true){ // when break, it can put data to child to pass data
-			while (handleprocess.startDate < currentDate) { handleprocess = dequeue(jobQueue);}
+			//when the new order's start date exceed currentDate, dequeue next order
+			while (handleprocess.startDate < currentDate) { 
+				handleprocess = dequeue(jobQueue);
+				// when no more order available, break it
+				if(&handleprocess == NULL) {
+					break;
+				}
+			}
 			//parent process: handle schedule
 			if (pid > 0)	{	
 				// Is process free? if some of them are not busy, check next condition.  Otherwise go to next day
@@ -75,7 +75,7 @@ void fcfs(struct Queue* jobQueue, char* outputPath, struct Schedule* resultSched
 				}
 				else{ break;}
 			}
-			//child process: use pipe to output the process to txt
+			//child process: use pipe to output the process to txt (need typing)
 			else {
 				break;
 			
