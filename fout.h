@@ -11,9 +11,9 @@ void fileOutput(int fd[2], char* algo, char* filePath) {
 	FILE* file = fopen(filePath, "w+");
 
 	// Print header
-	printf("Algorithm: %s\n", algo);
-	printf("Day: %d\n\n", NUM_OF_DAY);
-	printf("\t\t%5s\t%5s\t%5s\n", "L1", "L2", "L3");
+	fprintf(file, "Algorithm: %s\n", algo);
+	fprintf(file, "Day: %d\n\n", NUM_OF_DAY);
+	fprintf(file, "\t\t%5s\t%5s\t%5s\n", "L1", "L2", "L3");
 
 	// Print each day
 	for(i = 0; i < NUM_OF_DAY; i++) {
@@ -26,7 +26,7 @@ void fileOutput(int fd[2], char* algo, char* filePath) {
 			else
 				sprintf(day[j], "%05d", buffer.orderID[j]);
 		}
-		printf("Day %02d:\t%s\t%s\t%s\n", i + 1, day[0], day[1], day[2]);
+		fprintf(file, "Day %02d:\t%5s\t%5s\t%5s\n", i + 1, day[0], day[1], day[2]);
 	}
 
 	fclose(file);

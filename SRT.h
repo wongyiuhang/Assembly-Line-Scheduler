@@ -36,7 +36,7 @@ struct Node* SRT_find(const struct Queue* jobQueue, int day, const struct Order*
 	struct Node* SRT = NULL;
 	while (nextNode != NULL) {
 		if(
-			nextNode->data.startDate <= day // Find an order exist on or before the day
+			nextNode->data.startDate <= day + 1 // Find an order exist on or before the day
 			&&
 			nextNode->data.remainDay > 0 // Reject finished order
 			&&
@@ -112,4 +112,6 @@ void SRT_algorithm(struct Queue* jobQueue, char* outputPath, struct Schedule* re
 		close(fd[1]);
 		fileOutput(fd, "SRT", outputPath);
 	}
+
+	clearQueue(cloneJobQueue);
 }
