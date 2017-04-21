@@ -1,3 +1,5 @@
+#include <unistd.h>
+
 #include "struct.h"
 #include "global.h"
 
@@ -6,7 +8,7 @@
 void fileOutput(int fd[2], char* algo, char* filePath) {
 	int i, j;
 	struct DayJob buffer;
-	FILE file* = fopen(filePath, "w+");
+	FILE* file = fopen(filePath, "w+");
 
 	// Print header
 	printf("Algorithm: %s\n", algo);
@@ -24,7 +26,7 @@ void fileOutput(int fd[2], char* algo, char* filePath) {
 			else
 				sprintf(day[j], "%05d", buffer.orderID[j]);
 		}
-		printf("Day %02d:\t%s\t%s\t%s\n", day[0], day[1], day[2]);
+		printf("Day %02d:\t%s\t%s\t%s\n", i + 1, day[0], day[1], day[2]);
 	}
 
 	fclose(file);
