@@ -3,6 +3,7 @@
 
 #include "struct.h"
 #include "global.h"
+#include "fout.h"
 
 #pragma once
 
@@ -55,7 +56,7 @@ struct Node* SRT_find(const struct Queue* jobQueue, int day, const struct Order*
 }
 
 void SRT_algorithm(struct Queue* jobQueue, char* outputPath, struct Schedule* resultScheduleTable) {
-	int day, line;
+	int pid, day, line, fd[2];
 	struct Queue* cloneJobQueue = cloneQueue(jobQueue);
 	struct Node* nodePointer = cloneJobQueue->head;
 	strcpy(resultScheduleTable->algo, "SRT");
@@ -68,27 +69,46 @@ void SRT_algorithm(struct Queue* jobQueue, char* outputPath, struct Schedule* re
 		nodePointer = nodePointer->next;
 	}
 
-	for(day = 0; day < NUM_OF_DAY; day++) {
-		// Initialise value
-		struct DayJob* today = resultScheduleTable->days + day;
-		struct Order* todayOrder[3];
-		for(line = 0; line < 3; line++) {
-			todayOrder[line] = NULL;
-			today->orderID[line] = 0;
-		}
+	// Prepare pipe for result streaming
+	pipe(fd);
 
-		// Find shortest remain time
-		for(line = 0; line < 3; line++) {
-			nodePointer = SRT_find(jobQueue, day, todayOrder);
-			if(nodePointer == NULL)
-				break;
-			today->orderID[line] = nodePointer->data.id;
-			todayOrder[line] = &nodePointer->data;
-		}
+	// Prepare child process for file output
+	if(fork()) {
+		// Parent process
+		// Close unnessary pipe end
+		close(fd[0]);
+		for(day = 0; day < NUM_OF_DAY; day++) {
+			// Initialise value
+			struct DayJob* today = resultScheduleTable->days + day;
+			struct Order* todayOrder[3];
+			for(line = 0; line < 3; line++) {
+				todayOrder[line] = NULL;
+				today->orderID[line] = 0;
+			}
 
-		// Decrement remain time
-		for(line = 0; line < 3; line++)
-			if(todayOrder[line] != NULL)
-				todayOrder[line]->remainDay--;
+			// Find shortest remain time
+			for(line = 0; line < 3; line++) {
+				nodePointer = SRT_find(jobQueue, day, todayOrder);
+				if(nodePointer == NULL)
+					break;
+				today->orderID[line] = nodePointer->data.id;
+				todayOrder[line] = &nodePointer->data;
+			}
+
+			// Pass DayJob to file output process
+			write(fd[1], today, sizeof(dayjob_t));
+
+			// Decrement remain time
+			for(line = 0; line < 3; line++)
+				if(todayOrder[line] != NULL)
+					todayOrder[line]->remainDay--;
+		}
+		close(fd[1]);
+		wait(NULL);
+	} else {
+		// Child process
+		// Close unnessary pipe end
+		close(fd[1]);
+		fileOutput(fd, "SRT", outputPath);
 	}
 }
