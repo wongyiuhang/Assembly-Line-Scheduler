@@ -3,10 +3,10 @@
 #include <string.h>
 #include <stdbool.h>
 
-//#include "struct.h"
+#include "struct.h"
 #include "input.h"
-//#include "global.h"
-//#include "SRT.h"
+#include "global.h"
+
 
 
 
@@ -19,18 +19,10 @@ int main(int argc, char *argv[]){
 	struct Queue* queue = newQueue(); // Order Queue
 	bool keepLoop = true;
 
-	struct Schedule resultScheduleTable[10]; // Schedule tabel
+	struct Schedule resultScheduleTable[MAX_SCHEDULE_TABLE]; // Schedule tabel
+	initScheduleTable(resultScheduleTable,MAX_SCHEDULE_TABLE);
 	int schedTabIdx = 0;
-
 	char command[100];
-
-	struct Product * a = pdHead->next; 
-	struct Product * b = pdHead->next->next;
-	printf("a: %s\n", a->nameStr);
-	printf("b: %s\n", b->nameStr);
-	printf("A vs B: %d\n", checkEqiuipConflict(a,b));
-
-
 	while(keepLoop){
 		printf("Please enter: ");
 		fflush(stdout);
@@ -49,13 +41,17 @@ int main(int argc, char *argv[]){
 	}
 	// scanf("%[^\n]",&command);
 	// char * command = "addBatchOrder batch_Order_01.dat";
-	// switch(checkCommandExist(command)){
-	// 	case 0:cm_addOrder(command,queue,pdHead);break;
-	// 	case 1:cm_addBatchOrder(command,queue,pdHead);break;
-	// 	case 2:cm_runAls(command,queue,&resultScheduleTable[schedTabIdx]); schedTabIdx++;break;
-	// 	case 3:cm_printReport(command);break;
-	// 	case 4:endProgram();break;
-	// }
+	// // switch(checkCommandExist(command)){
+	// // 	case 0:cm_addOrder(command,queue,pdHead);break;
+	// // 	case 1:cm_addBatchOrder(command,queue,pdHead);break;
+	// // 	case 2:cm_runAls(command,queue,&resultScheduleTable[schedTabIdx]); schedTabIdx++;break;
+	// // 	case 3:cm_printReport(command);break;
+	// // 	case 4:endProgram();break;
+	// // }
+
+
+
+
 	// printQueue(queue);
 	// struct Node* test = searchOrder(queue,10);
 	// printf("orderID: %s\n", test->data.orderID);		

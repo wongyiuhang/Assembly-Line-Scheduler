@@ -1,2 +1,3 @@
 #define NUM_OF_DAY 60
 #define PRODUCT_PER_DAY 1000
+#define MAX_SCHEDULE_TABLE 10
