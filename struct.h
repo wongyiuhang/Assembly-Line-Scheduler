@@ -117,15 +117,13 @@ int enqueue(struct Queue* queue, const struct Order* job) {
 	return 0;
 }
 
-struct Order dequeue(struct Queue* queue) {
-	struct Order result;
-
+int dequeue(struct Queue* queue, struct Order* result) {
 	// Error checking
-	if(queue == NULL || queue->head == NULL)
-		return result;
+	if(result == NULL || queue == NULL || queue->head == NULL)
+		return 1;
 
 	// Prepare output
-	memcpy(&result, &queue->head->data, sizeof(order_t));
+	memcpy(result, &queue->head->data, sizeof(order_t));
 
 	// Dequeue
 	struct Node* nextNode;
@@ -133,7 +131,7 @@ struct Order dequeue(struct Queue* queue) {
 	free(queue->head);
 	queue->head = nextNode;
 
-	return result;
+	return 0;
 }
 
 struct Queue* cloneQueue(struct Queue* sourseQueue) {
