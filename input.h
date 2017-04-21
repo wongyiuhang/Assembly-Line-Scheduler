@@ -88,6 +88,7 @@ int getFirstSpace(char * inStr){
 	}
 	return  strlen(inStr)-1;
 }
+
 int checkCommandExist(char * inStr){
 	const char *commandSet[] = {"addOrder","addBatchOrder","runALS","printReport","endProgram"};	
 	int i ;
@@ -142,20 +143,13 @@ void cm_addBatchOrder(char * command,struct Queue* queue,struct Product * produc
 	printf("**** End addBatchOrder ****\n");
 }
 // read printReort Command
-void cm_printReport(char * command){
+void cm_printReport(char * command,struct Queue * queue,struct Schedule * scheduleTable){
 	char fileName[30], line[256];
 	sscanf( command, "printReport > %s  ", fileName);
 
-	FILE *file;
-	file = fopen(fileName, "w");
-
-	// *********************
-	// * print Report	   *
-	// *********************
-
-	fclose(file);
+	printReport(fileName,queue,scheduleTable);
 }
-// read runAls Command
+// _addBatchOrder(command,queue,pdHead)read runAls Command
 void cm_runAls(char * command,struct Queue * queue,struct Schedule * resultScheduleTable){
 
 
@@ -218,7 +212,7 @@ int compare( const void* a, const void* b)
 }
 
 void initProdConfig(struct Product * pdHead){
-	char line[256],nameStr[10],dummy[100],name;
+	char line[256],nameStr[10],dummy[100],name,shitStr[12];
 	int *equipPtr,equipCount;
 	int i,j,index;
 	struct Product newPd;
@@ -226,12 +220,13 @@ void initProdConfig(struct Product * pdHead){
 	file = fopen("product.config", "r");
 	for ( index = 1; fgets(line, sizeof(line), file) ; index++)
 	{
-		sscanf( line, "%9s:%d,%s", nameStr,&equipCount,dummy);
+		sscanf( line, "%9s:%d%s", nameStr,&equipCount,dummy);
 		name = nameStr[8];
 		equipPtr = malloc(equipCount * sizeof(int) );
 
-		for (i = 0, j = 10 ; i < equipCount ; i++ , j += 12)
-			equipPtr[i] = dummy[j] - '0';
+		for (i = 0; i < equipCount ; i++ )
+			sscanf( dummy, ",Equipment_%d%s", &equipPtr[i],dummy);
+		
 
 		qsort( equipPtr, equipCount, sizeof(int), compare ); // sort array
 
