@@ -8,10 +8,20 @@ int FCFS_daysleft(int num){
 }
 
 int FCFS_addOrderToSchedule(struct Schedule* scheduleTable, struct Order* order, int day, int line) {
+	strcpy(resultScheduleTable->algo, "FCFS");
+	struct DayJob* today = resultScheduleTable->days + day;
+	today->orderID[line] = order->id;
 }
 
-int FCFS_isConflict() {
+int FCFS_isConflict(const struct Order* order, const struct Order* todayOrder[3]) {
+	int i;
+	for(i = 0; i < 3; i++)
+		if(todayOrder[i] != NULL && checkEqiuipConflict(order->prod, todayOrder[i]->prod))
+			return 1;
+	return 0;
 }
+
+
 
 //assume order are ordered by start date
 void FCFS_algorithm(struct Queue* jobQueue, char* outputPath, struct Schedule* resultScheduleTable){
