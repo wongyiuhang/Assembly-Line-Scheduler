@@ -8,237 +8,305 @@
 
 #pragma once
 
-		//output
-void printReport(char * fileName,struct Queue * queue,struct Schedule * resultScheduleTable){
-	FILE *fp;
-		printf("%s\n",resultScheduleTable[0].algo);
+int getLineStartDay(struct Schedule * resultScheduleTable, int line){
 
-
-	fp=fopen(fileName, "w");
-
-	char str[255];
-
-
-	//first part
-	char algo;
-	int startDate; 
-	int endDate;
-
-	//second part
-	int pro_startDate; 
-	int pro_endDate;
-	int pro_dueDate;
-	int remainDay;
-	int order;
-	int quantity_requested;
-	int sum;
-	int quantity_produced;
-
-
-	//third part
-	int working_day;
-	int order_accept;
-	int day_not_use;
-	int day_use;
-	int utilization;
-
-
-	//fourth part
-	int line1[3];
-	int line2[3];
-	int line3[3];
-
-	int i = 0;
-	while(resultScheduleTable[i].algo != NULL){
-		algo = resultScheduleTable[i].algo  ;
-
-
-			//each line
-		for(int line= 0 ; line<3 ; line++){
-
-
-
-			for(int a = 0; a < 60; a++ ){
-				if (resultScheduleTable[i].days[a].orderID[line] !=0){
-					startDate = a;
-					break;
-				}
-			}
-
-
-			for (int a = 60 ; a> 0 ; a--) {
-				if (resultScheduleTable[i].days[a].orderID[line] !=0){
-					endDate = a;
-					break;
-				}
-			}
-
-
-			sprintf(str, "Assembly Line %d \n Algorithm: %s\n Start Date: D%02d\n End Date: D%02d\n", line, algo,startDate,endDate );
-			fprintf(fp, str);
-			working_day = endDate - startDate + 1;
-
-
-
-			for(int a = 0; a < 60; a++ ){
-				if (resultScheduleTable[0].days[a].orderID[line] !=0)
-					day_use += 1;	
-				if (resultScheduleTable[0].days[a].orderID[line] ==0)
-					day_not_use += 1;
-			}
-
-			utilization = day_use / working_day * 100;
-
-
-			sprintf(str, "Order Number   Start Date   End Date   Due Date   Quantity Requested   Quantity Produced" );
-			fprintf(fp, str);
-
-
-			
-			for(int a = 0; a < 60; a++ ){
-				if (resultScheduleTable[0].days[a].orderID !=0){
-					order = resultScheduleTable[0].days[a].orderID;
-
-							//startDate
-					for (int b = 0 ; b< 60 ; a++) {
-						if (resultScheduleTable[0].days[b].orderID[line] == order)
-							pro_startDate= b;
-						break;
-					}
-
-							//endDate
-					for (int b = 60 ; b> 0 ; b--) {
-						if (resultScheduleTable[0].days[b].orderID[line] == order)
-							pro_endDate = b;
-						break;
-					}
-
-					//quality produced
-					for (int b = 0 ; b<60 ; b++) {
-						if (resultScheduleTable[0].days[b].orderID[line] == order)
-							sum = sum + 1;
-						quantity_produced = sum * 1000;
-
-					}
-
-					struct Node * checkingNode = searchOrder(queue,order);
-
-
-					sprintf(str, "%s %s %s %s %s %s\n", order , pro_startDate,pro_endDate , checkingNode->data.endDate,checkingNode->data.quantity, quantity_produced);
-					fprintf(fp, str);
-
-				}
-			}
-
-			if (line == 0){
-				line1[0] = order_accept;
-				line1[1] = working_day;
-				line1[2] = utilization;
-			}
-			else if (line == 1){
-				line2[0] = order_accept;
-				line2[1] = working_day;
-				line2[2] = utilization;
-			}
-			else if (line == 2){
-				line3[0] = order_accept;
-				line3[1] = working_day;
-				line3[2] = utilization;
-			}
-
-
-			sprintf(str, "Total number of working days: %d\n Order accepted:  %d\n ", working_day , order_accept);
-			fprintf(fp, str);
-
-			sprintf(str, "Day not in use:  %d\nDay in use:  %d\n  ", day_not_use , day_use);
-			fprintf(fp, str);
-
-			sprintf(str, "Utilization:%d \n" , utilization );
-			fprintf(fp, str);
-
-
+	int i;
+	for ( i = 0; i < NUM_OF_DAY; i++){	
+		if (resultScheduleTable->days[i].orderID[line] != 0) {			
+			return i;
 		}
+	}
 
+}
 
-	//Summary Schedule
-		int totalOrder;
-		double avg_day,avg_util,totalWorkDay;
-
-		totalOrder = line1[0]+line2[0]+line3[0];
-		totalWorkDay =  line1[1]+line2[1]+line3[1];
-		avg_util = (line1[2]+line2[2]+line3[2])/3*100;
-		avg_day = totalWorkDay/3*100;
-
-		sprintf(str,"**Summary Schedule**\nAlgorithm used:%s\nThere are %d orders scheduled in total",algo,totalOrder);
-		fprintf(fp, str);
-		sprintf(str,"Details are as follows:\n Assembly Line | Order Accepted | Working Day | Utilization\n");
-		fprintf(fp, str);
-		sprintf(str,"line_1\t%d\t%d\t%d\n",line1[0],line1[1],line1[2]);
-		fprintf(fp, str);
-		sprintf(str,"line_2\t%d\t%d\t%d\n",line2[0],line2[1],line2[2]);
-		fprintf(fp, str);
-		sprintf(str,"line_3\t%d\t%d\t%d\n",line3[0],line3[1],line3[2]);
-		fprintf(fp,  str);
-
-		sprintf(str,"***Performance***\n");
-		fprintf(fp, str);
-		sprintf(str,"AVERAGE OF WORKING DAYS FOR THE 3 ASSEMBLY LINES:\t%.1f DAYS\n",avg_day);
-		fprintf(fp, str);
-		sprintf(str,"AVERAGE OF UTILIZATIOIN:\t%.1f\n",avg_util);
-		fprintf(fp, str);
-		sprintf(str,"TOTAL WORKING DAYS OF THE 3 ASSEMBLY LINES:%.1f DAYS\n",totalWorkDay);
-		fprintf(fp, str);
-		sprintf(str,"UTILIZATION OF THE 3 ASSEMBLY LINES:\t%.1f\n",avg_util);
-		fprintf(fp, str);
-
-		i+= 1;
-
-
-		//print report
-		int count_dropped = resultScheduleTable[i].droppedOrderCount;
-
-		int totalOrder_receive = count_dropped + totalOrder;
-
-		sprintf(str,"***Order Rejected List***\nTOTAL NUMBER OF ORDER RECEIVED: %d",totalOrder_receive);
-		fprintf(fp, str);
-
-		sprintf(str,"- ORDER ACCEPTED: %d\n - ORDER REJECTED: %d\n REJECTED ORDER LIST: \n",count_dropped);
-		fprintf(fp, str);
-
-		sprintf(str,"REJECTED ORDER LIST\n==================================\n");
-		fprintf(fp, str);
-
-
-
-
-
-		for (int a = 0; a < count_dropped; a++){
-			
-
-
-		order = resultScheduleTable[i].droppedOrder[a];
-
-		struct Node * checkingNode = searchOrder(queue,order);
-
-
-		sprintf(str,"%d%d%d",checkingNode->data.id,checkingNode->data.startDate,checkingNode->data.endDate);
-		fprintf(fp, str);
-		
-
-		sprintf(str,"%s%d",checkingNode->data.pdName,checkingNode->data.quantity);
-		fprintf(fp, str);
-		
-
-
+int getLineEndDay(struct Schedule * resultScheduleTable, int line){
+	int i;
+	for ( i = 59; i > 0; i--){	
+		if (resultScheduleTable->days[i].orderID[line] != 0) {
+			return i;
 		}
+	}
 
+}
+int getLineOrderStartDay(struct Schedule * resultScheduleTable, int line, int orderId) {
+	int a, pro_startDate;
+	for ( a = 0 ; a< 60 ; a++) {
+		if (resultScheduleTable->days[a].orderID[line] == orderId)
+			pro_startDate= a;
+		break;
+	}
+	return pro_startDate;
+}
 
-		sprintf(str,"There are %d Orders rejected",count_dropped);
-		fprintf(fp, str);
+int getLineOrderEndDay(struct Schedule * resultScheduleTable, int line, int orderId) {
+	int a, pro_endDate;
+	for ( a = 60 ; a> 0 ; a--) {
+		if (resultScheduleTable->days[a].orderID[line] == orderId)
+			pro_endDate = a;
+		break;
+	}
+	return pro_endDate;
+}
+
+int getQuantityProduce(struct Schedule * resultScheduleTable, int line, int orderId ,struct Queue * queue) {
+	int largest;
+	int line1 = getLineOrderEndDay(resultScheduleTable,1,orderId);
+	int line2 = getLineOrderEndDay(resultScheduleTable,2,orderId);
+	int line3 = getLineOrderEndDay(resultScheduleTable,3,orderId);
+
+	if (line1 >= line2 && line1 >= line3)
+		largest = line1;
+	else if (line2 >= line1 && line2 >= line3)
+		largest = line2;
+	else if (line3 >= line1 && line3 >= line2)
+		largest = line3;
+
+	struct Node * checkingNode = searchOrder(queue,orderId);
+	int a;
+	int sum = 0 ,quantity = 0 ;
+
+	if ((checkingNode->data.quantity) % 1000 == 0)
+		sum = 1000;
+	else {
+		sum = (checkingNode->data.quantity % 1000);
+	}
+
+	for ( a = 0 ; a<60 ; a++) {
+		if (resultScheduleTable[0].days[a].orderID[line] == orderId)
+			quantity += 1
+		;
 
 	}
 
-	fclose(fp);
+	printf("%d\n",checkingNode->data.quantity);
+	printf("%d\n",quantity);
+	sum = sum + (quantity * 1000) - 1000;
+	return sum;
 
 }
+
+
+int getWorkingDay(struct Schedule * resultScheduleTable, int line, int orderId){
+	int startDate, endDate,working_day;
+	startDate = getLineStartDay(resultScheduleTable,line);
+	endDate = getLineEndDay(resultScheduleTable,line);
+	working_day = endDate - startDate + 1;
+	return working_day;
+}
+int getWorkingDayInLine(struct Schedule * resultScheduleTable, int line){
+	int i,count=0;
+	for ( i = 0 ; i <60 ;i++)
+	{
+		if (resultScheduleTable->days[i].orderID[line] != 0)
+		{
+			count++;
+		}
+	}
+	return count;
+}
+int getDayInUse(struct Schedule * resultScheduleTable, int line){
+	int a;
+	int day_use = 0 ;
+
+	for( a = 0; a < 60; a++ ){
+		if (resultScheduleTable[0].days[a].orderID[line] !=0)
+			day_use += 1;
+	}
+	return day_use;
+}
+
+
+int getDayNotUse(struct Schedule * resultScheduleTable, int line){
+	int a;
+	int day_not_use = 0 ;
+	for( a = 0; a < 60; a++ ){
+		if (resultScheduleTable[0].days[a].orderID[line] ==0)
+			day_not_use += 1;
+	}
+	return day_not_use;
+}
+
+float getUtilization(struct Schedule * resultScheduleTable, int line, int orderId){
+	int working_day = getWorkingDay(resultScheduleTable,line,orderId);
+	int day_use = getDayInUse(resultScheduleTable,line);
+	float utilization = day_use / working_day * 100;
+	return utilization;
+
+}
+
+int getOrderAccept(struct Schedule * resultScheduleTable, int line){
+	int day_use = getDayInUse(resultScheduleTable,line);
+	int order_reject = getOrderReject(resultScheduleTable);
+	int order_accept = day_use -  order_reject;
+	return order_accept;
+
+}
+
+int getOrderReject(struct Schedule * resultScheduleTable, int line){
+	int order_reject = resultScheduleTable->droppedOrderCount;
+	return order_reject;
+
+}
+
+
+int * getAllorderIdInLine(struct Schedule * resultScheduleTable, int line){
+
+
+	int *orderInLine,i,j,k,matched=0;
+	orderInLine = malloc(NUM_OF_DAY*sizeof(int));
+	for(i = 0; i<NUM_OF_DAY; ++i)
+		orderInLine[i] = 0;
+
+
+	for ( i = 0 ,j = 0 ; i < NUM_OF_DAY; i++){
+		matched = 0;
+		for (k = 0; k < NUM_OF_DAY; k++){
+			if (resultScheduleTable->days[i].orderID[line] == orderInLine[k])
+			{
+				matched++;
+			}
+		}
+		if (matched == 0)
+		{
+			orderInLine[j] = resultScheduleTable->days[i].orderID[line];
+			j++;
+		}
+	}
+	return orderInLine;
+}
+int getNumberofOrderInLine(int *orderInLine){
+	int i;
+	for ( i = 59; i >= 0; i--){	
+		if (orderInLine[i] != 0) {
+			return (i+1);
+		}
+	}
+}
+
+
+
+void printReport(char * fileName,struct Queue * queue,struct Schedule * resultScheduleTable){
+	printf("%s\n",resultScheduleTable[0].algo);
+	printf("%s\n",fileName);
+	FILE *file;
+	file = fopen(fileName, "w");
+	char str[200];
+	int table , line , day ;
+
+	for (table = 0; table < MAX_SCHEDULE_TABLE  && resultScheduleTable[table].algo[0] != '\0'; table++)
+	{
+		for ( line = 0; line < 3; line++)
+		{	
+
+
+
+			// int j = 0;
+			// for ( j = 0; j < NUM_OF_DAY; ++j){	
+			// 	printf("%d ",orderInLine[j]);
+			// }
+
+			int lineStartDay =  getLineStartDay(&resultScheduleTable[table],line);
+			int lineEndDay =  getLineEndDay	(&resultScheduleTable[table],line);
+
+			sprintf(str, "Assembly Line %d \n\nAlgorithm: %s\nStart Date: D%03d\nEnd Date: D%03d\n\n", 
+				line+1, resultScheduleTable[table].algo, lineStartDay+1, lineEndDay+1 );
+			printf("%s\n",str);
+			fwrite(str , 1 , (strlen(str)*sizeof(char) ), file );
+			strcpy(str, " Order Number | Start Date | End Date | Due Date | Quantity Requested | Quantity Produced \n");
+			fwrite(str , 1 , (strlen(str)*sizeof(char) ), file );
+
+			int *orderInLine = NULL ;
+			orderInLine = getAllorderIdInLine(&resultScheduleTable[table],line);
+			int orderNumber = getNumberofOrderInLine(orderInLine);
+			int j;
+			for (j = 0; j < orderNumber; ++j)
+			{ 
+				struct Node * checkingNode = searchOrder(queue,orderInLine[j]);
+
+				sprintf(str, "%d |  %d | %d |",orderInLine[j],getLineOrderStartDay(resultScheduleTable,line,orderInLine[j]),getLineOrderEndDay(resultScheduleTable,line,orderNumber));
+				fwrite(str , 1 , (strlen(str)*sizeof(char) ), file );
+
+
+				sprintf(str, " %d | %d| %d ", checkingNode->data.endDate ,checkingNode->data.quantity,getQuantityProduce(resultScheduleTable,line,orderInLine[j],queue));
+				fwrite(str , 1 , (strlen(str)*sizeof(char) ), file );
+
+				strcpy(str, "\n");
+				fwrite(str , 1 , (strlen(str)*sizeof(char) ), file );
+
+
+
+			}
+			sprintf(str, "%d \n  %d \n",getWorkingDay(resultScheduleTable,line,orderInLine[j]),getOrderAccept(resultScheduleTable,line));
+			fwrite(str , 1 , (strlen(str)*sizeof(char) ), file );
+
+			sprintf(str, "%d \n  %d \n",getDayInUse(resultScheduleTable,line),getDayNotUse(resultScheduleTable,line));
+			fwrite(str , 1 , (strlen(str)*sizeof(char) ), file );
+
+			sprintf(str, "%d \n ",getUtilization(resultScheduleTable,line,orderInLine[j]));
+			fwrite(str , 1 , (strlen(str)*sizeof(char) ), file );
+
+
+
+		}
+
+
+
+		sprintf(str, "***Summary of Schedules***\n Algorithm used: %s",resultScheduleTable[0].algo);
+		fwrite(str , 1 , (strlen(str)*sizeof(char) ), file );
+		int a;
+		int sum = 0;
+
+		for(line=0;line<3;line++){
+			sum += getOrderAccept(resultScheduleTable, line);
+
+		}
+
+		sprintf(str, "There are %d orders scheduled in total. Details are as follows:\n",sum);
+		fwrite(str , 1 , (strlen(str)*sizeof(char) ), file );
+
+
+		sprintf(str, "Assembly Line | Order Accepted | Working Day | Utilization\n===========================================================================\n");
+		fwrite(str , 1 , (strlen(str)*sizeof(char) ), file );
+
+
+		for(line=0;line<3;line++){
+			int *orderInLine = NULL ;
+			orderInLine = getAllorderIdInLine(&resultScheduleTable[table],line);
+			int orderNumber = getNumberofOrderInLine(orderInLine);
+			sprintf(str, "Line_%d %d %d %f \n",line,orderNumber,getWorkingDayInLine(resultScheduleTable,line),getWorkingDayInLine(resultScheduleTable,line)*100/60);
+			fwrite(str , 1 , (strlen(str)*sizeof(char) ), file );
+		}
+		strcpy(str, "===========================================================================\n\n" );
+		fwrite(str , 1 , (strlen(str)*sizeof(char) ), file );
+		strcpy(str, "\n***PERFORMANCE***\n\n" );
+		fwrite(str , 1 , (strlen(str)*sizeof(char) ), file );
+
+		float sumUtit = 0 , sumWorkingDay = 0;
+		for(line=0;line<3;line++)
+		{
+			sumUtit += getWorkingDayInLine(resultScheduleTable,line)/60*100;
+			sumWorkingDay += getWorkingDayInLine(resultScheduleTable,line);
+		}
+
+		
+		sprintf(str, "AVERAGE OF WORKING DAYS FOR THE 3 ASSEMBLY LINES: %f DAYS \n",(sumWorkingDay/3));
+		fwrite(str , 1 , (strlen(str)*sizeof(char) ), file );
+		
+		sprintf(str, "AVERAGE OF UTILIZATIOIN: %f %\n\n",(sumUtit/3));
+		fwrite(str , 1 , (strlen(str)*sizeof(char) ), file );
+
+		sprintf(str, "TOTAL WORKING DAYS OF THE 3 ASSEMBLY LINES: %f DAYS \n",sumWorkingDay);
+		fwrite(str , 1 , (strlen(str)*sizeof(char) ), file );
+		sprintf(str, "UTILIZATION OF THE 3 ASSEMBLY LINES: %f %\n",(sumUtit/3));
+		fwrite(str , 1 , (strlen(str)*sizeof(char) ), file );
+
+	}
+
+
+
+	fclose(file);
+}
+
+
+
 

@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include "struct.h"
 #include "global.h"
+#include "output.h"
 #include "SRT.h"
 
 #pragma once
@@ -146,7 +147,6 @@ void cm_addBatchOrder(char * command,struct Queue* queue,struct Product * produc
 void cm_printReport(char * command,struct Queue * queue,struct Schedule * scheduleTable){
 	char fileName[30], line[256];
 	sscanf( command, "printReport > %s  ", fileName);
-
 	printReport(fileName,queue,scheduleTable);
 }
 // _addBatchOrder(command,queue,pdHead)read runAls Command
@@ -159,7 +159,7 @@ void cm_runAls(char * command,struct Queue * queue,struct Schedule * resultSched
 
 
 	if (strcmp(algo,"-FCFS") == 0){
-		sscanf( dummy, "| printSchedule >%s\n",fileName );
+		sscanf( dummy, "| printSchedule >%s\n",fileName );  
 		printf("ALGO :%s\n",algo);
 		printf("fileName: %s\n",fileName);
 		strcpy(resultScheduleTable->algo,"FCFS");
