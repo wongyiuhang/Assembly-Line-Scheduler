@@ -9,6 +9,10 @@
 
 
 
+void clearInput() {
+	char temp;
+	while((temp = getchar()) != '\n' && temp != EOF);
+}
 
 int main(int argc, char *argv[]){
 	printf("\n");
@@ -27,6 +31,7 @@ int main(int argc, char *argv[]){
 		printf("Please enter: ");
 		fflush(stdout);
 		if (scanf("%[^\n]",command)!=1){
+			clearInput();
 			printf("Command Error\n");
 			continue;
 		}
@@ -37,6 +42,7 @@ int main(int argc, char *argv[]){
 			case 3:cm_printReport(command);break;
 			case 4:endProgram(queue,pdHead);break;
 		}
+		clearInput();
 		if (strcmp(command,"endProgram")==0)break;
 	}
 	// scanf("%[^\n]",&command);
