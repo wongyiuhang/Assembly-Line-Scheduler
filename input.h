@@ -5,6 +5,8 @@
 #include "struct.h"
 #include "global.h"
 #include "SRT.h"
+#include "fcfs.h"
+
 
 #pragma once
 
@@ -169,7 +171,7 @@ void cm_runAls(char * command,struct Queue * queue,struct Schedule * resultSched
 		printf("ALGO :%s\n",algo);
 		printf("fileName: %s\n",fileName);
 		strcpy(resultScheduleTable->algo,"FCFS");
-		// FCFS_algorithm(queue, fileName,resultScheduleTable);
+		FCFS_algorithm(queue, fileName,resultScheduleTable);
 
 
 

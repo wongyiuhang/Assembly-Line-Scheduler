@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "global.h"
 
 #include "struct.h"
 
@@ -12,7 +13,7 @@ int daysleft(int num){
 }
 
 //assume order are ordered by start date
-void fcfs(struct Queue* jobQueue, char* outputPath, struct Schedule* resultScheduleTable, struct Product* pdHead){
+void FCFS_algorithm(struct Queue* jobQueue, char* outputPath, struct Schedule* resultScheduleTable){
 	//********************************************************************************************
 	// Initialization
 	
@@ -28,7 +29,8 @@ void fcfs(struct Queue* jobQueue, char* outputPath, struct Schedule* resultSched
 	
 	
 	//handle the first process in queue
-	struct Order handleprocess = dequeue(cloneJobQueue);
+	struct Order handleprocess;
+	dequeue(cloneJobQueue, &handleprocess);
 	handleprocess.remainDay = daysleft(handleprocess.quantity);
 	struct Order running_process[3];
 	int flag[3] = {0,0,0};
@@ -40,16 +42,18 @@ void fcfs(struct Queue* jobQueue, char* outputPath, struct Schedule* resultSched
 	if ( pid < 0 ) { printf("Child creation error\n"); exit(1);}
 	//parent process.  fd[0] for parent to read
 	else if ( pid > 0 ) { close(fd[1]);}
-	//child process.  fd[0] for child to write 
-	else { close(fd[1]);}
+	//child process.  fd[1] for child to write 
+	else { close(fd[0]);}
 	
 	//********************************************************************************************	
 
 	
 	if (pid > 0) {
 		// run 60 times represent 60 days job
+		printf("Parent:1");
 		for(currentDate=1; currentDate <= NUM_OF_DAY; currentDate++) {
 			char tochild[16];
+			printf("P2");
 				
 			//end of last day.  Process time needed for each process minus 1.
 			
@@ -65,44 +69,107 @@ void fcfs(struct Queue* jobQueue, char* outputPath, struct Schedule* resultSched
 			// Handle new coming process
 			while (true){ // when break, it can put data to child to pass data
 				//when the new order's start date exceed currentDate, dequeue next order
+				
+				printf("P3");
 				while (handleprocess.startDate < currentDate) { 
-					handleprocess = dequeue(jobQueue);// when no more order available, break it
-					if(&handleprocess == NULL) {break;}
+					//function: check whether it is null
+					int result = dequeue(jobQueue, &handleprocess);
+					// when no more order available, break it
+					// 1 = null
+					if(result) {break;}
 					handleprocess.remainDay = daysleft(handleprocess.quantity);
 					
 				}
+				
 				//parent process: handle schedule
 				// Is process free? if some of them are not busy, check next condition.  Otherwise go to next day
 				if (running_process[0].remainDay == 0 || running_process[1].remainDay == 0 || running_process[2].remainDay == 0){
 					// Check whether the execution process having equipment conflict with others
-					if (running_process[0].remainDay != 0) {if(checkEqiuipConflict(running_process[0].prod,handleprocess.prod)) {tochild = running_process[0].orderID; strcat(tochild, running_process[1].orderID); strcat(tochild, running_process[2].orderID); write(fd[1],tochild,strlen(tochild)); break;}}
-					if (running_process[1].remainDay != 0) {if(checkEqiuipConflict(running_process[1].prod,handleprocess.prod)) {tochild = running_process[0].orderID; strcat(tochild, running_process[1].orderID); strcat(tochild, running_process[2].orderID); write(fd[1],tochild,strlen(tochild)); break;}}
-					if (running_process[2].remainDay != 0) {if(checkEqiuipConflict(running_process[2].prod,handleprocess.prod)) {tochild = running_process[0].orderID; strcat(tochild, running_process[1].orderID); strcat(tochild, running_process[2].orderID); write(fd[1],tochild,strlen(tochild)); break;}}
+					if (running_process[0].remainDay != 0) {
+						if(checkEqiuipConflict(running_process[0].prod,handleprocess.prod)) {
+						strcpy(tochild, running_process[0].orderID); 
+						strcat(tochild, running_process[1].orderID); 
+						strcat(tochild, running_process[2].orderID); 
+						write(fd[1],tochild,strlen(tochild)); 
+						break;
+						}
+					}
+					if (running_process[1].remainDay != 0) {
+						if(checkEqiuipConflict(running_process[0].prod,handleprocess.prod)) {
+						strcpy(tochild, running_process[0].orderID); 
+						strcat(tochild, running_process[1].orderID); 
+						strcat(tochild, running_process[2].orderID); 
+						write(fd[1],tochild,strlen(tochild)); 
+						break;
+						}
+					}
+					if (running_process[2].remainDay != 0) {
+						if(checkEqiuipConflict(running_process[0].prod,handleprocess.prod)) {
+						strcpy(tochild, running_process[0].orderID); 
+						strcat(tochild, running_process[1].orderID); 
+						strcat(tochild, running_process[2].orderID); 
+						write(fd[1],tochild,strlen(tochild)); 
+						break;
+						}
+					}
 					// All conditions satisfy that process can put to the line. 
-					if (running_process[0].remainDay != 0) {running_process[0] = handleprocess; handleprocess = dequeue(cloneJobQueue); continue;}
-					if (running_process[1].remainDay != 0) {running_process[1] = handleprocess; handleprocess = dequeue(cloneJobQueue); continue;}
-					if (running_process[2].remainDay != 0) {running_process[2] = handleprocess; handleprocess = dequeue(cloneJobQueue); continue;}
+					if (running_process[0].remainDay != 0) {running_process[0] = handleprocess; while (dequeue(cloneJobQueue, &handleprocess)){continue;} continue;}
+					if (running_process[1].remainDay != 0) {running_process[1] = handleprocess; while (dequeue(cloneJobQueue, &handleprocess)){continue;} continue;}
+					if (running_process[2].remainDay != 0) {running_process[2] = handleprocess; while (dequeue(cloneJobQueue, &handleprocess)){continue;} continue;}
 				}
-				else{ tochild = running_process[0].orderID; strcat(tochild, running_process[1].orderID); strcat(tochild, running_process[2].orderID); write(fd[1],tochild,strlen(tochild)); break;}
+				else{ 
+					strcpy(tochild, running_process[0].orderID); 
+					strcat(tochild, running_process[1].orderID); 
+					strcat(tochild, running_process[2].orderID); 
+					write(fd[1],tochild,strlen(tochild)); 
+					break;
+				}
 				
 			}
 		}	
 	}
 	else { //child process: use pipe to output the process to txt (need typing)
+		
+		int i, j;
+		struct DayJob buffer;
+		FILE* file = fopen(outputPath, "w+");
+
+		// Print header
+		fprintf(file, "Algorithm: FCFS\n");
+		fprintf(file, "Day: %d\n\n", NUM_OF_DAY);
+		fprintf(file, "\t\t%5s\t%5s\t%5s\n", "L1", "L2", "L3");
+
 		for(currentDate=0; currentDate < NUM_OF_DAY; currentDate++) {
+			
+			printf("C1");
 			char temp[16],orderID_1[6],orderID_2[6],orderID_3[6];
 			read(fd[0],temp,15);
-			printf("%s\n",&temp);
-			int i;
 			for (i = 0; i<15; i++){
 				if(i>=1 && i<5)	{strcat(orderID_1,temp[i]);}
 				else if (i>=6 && i<10) {strcat(orderID_2,temp[i]);}
 				else if (i>=11 && i<15){strcat(orderID_3,temp[i]);}
 			}
+			
 			resultScheduleTable->days[currentDate].orderID[0] = atoi(orderID_1);
 			resultScheduleTable->days[currentDate].orderID[1] = atoi(orderID_2);
 			resultScheduleTable->days[currentDate].orderID[2] = atoi(orderID_3);
+			
+		
+			buffer.orderID[0] = atoi(orderID_1);
+			buffer.orderID[1] = atoi(orderID_2);
+			buffer.orderID[2] = atoi(orderID_3);
+			
+			char day[3][6];
+			for(j = 0; j < 3; j++) {
+				if(buffer.orderID[j] == 0)
+					strcpy(day[j], "-");
+				else
+					sprintf(day[j], "%05d", buffer.orderID[j]);
+			}
+			fprintf(file, "Day %02d:\t%5s\t%5s\t%5s\n", i + 1, day[0], day[1], day[2]);	
 		}
+		fclose(file); 
+		
 	}
 	
 	
@@ -111,10 +178,10 @@ void fcfs(struct Queue* jobQueue, char* outputPath, struct Schedule* resultSched
 	
 	//Close the pipe and child
 	if (pid > 0) { 
-		close(fd[0]);
+		close(fd[1]);
 	}
 	else{ 
-		close(fd[1]);
+		close(fd[0]);
 		wait(NULL);
 		exit(0); // need change
 	}
