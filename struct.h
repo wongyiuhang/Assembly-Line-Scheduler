@@ -246,6 +246,7 @@ void printQueue(const struct Queue* queue) {
 	while(nextNode != NULL) {
 		printf("========== NODE %d ==========\n", i);
 		printf("NODE Data address: %p\n", &nextNode->data);
+		printf("nextNode: %p\n", nextNode->next);
 		printf("orderID: %s\n", nextNode->data.orderID);		
 		printf("startDateStr: %s\n", nextNode->data.startDateStr);
 		printf("endDateStr: %s\n", nextNode->data.endDateStr);
