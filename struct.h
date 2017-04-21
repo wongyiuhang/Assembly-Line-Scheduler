@@ -20,7 +20,6 @@ struct Product {
 	struct Product* next;
 } product_t;
 
-
 /****************************
  *                          *
  *    Schedule structure    *
@@ -33,6 +32,8 @@ struct DayJob {
 struct Schedule {
 	struct DayJob days[NUM_OF_DAY];
 	char algo[10];
+	int * droppedOrder;
+	int droppedOrderCount;
 } schedule_t;
 
 
@@ -81,6 +82,17 @@ struct Product* newProduct() {
 	struct Product* obj = malloc(sizeof(product_t));
 	obj->next = NULL;
 	return obj;
+}
+
+void initScheduleTable(struct Schedule * scheduleTable, int maxSchedule){
+	int i ;
+	for (i = 0; i < maxSchedule; i++)
+	{
+		scheduleTable[i].algo[0] = '\0';
+		scheduleTable[i].droppedOrder = NULL;
+		scheduleTable[i].droppedOrderCount = 0;
+
+	}
 }
 
 int enqueue(struct Queue* queue, const struct Order* job) {
@@ -164,7 +176,6 @@ bool orderExist(struct Queue* queue,char * orderID){
 	}
 	return false;
 }
-
 int countQueue(struct Queue* queue) {
 	// Error checking
 	if(queue == NULL)
@@ -181,7 +192,6 @@ int countQueue(struct Queue* queue) {
 
 	return count;
 }
-
 struct Order queueRemoveById(struct Queue* queue, int id) {
 	int i;
 	struct Order result;
@@ -207,7 +217,6 @@ struct Order queueRemoveById(struct Queue* queue, int id) {
 
 	return result;
 }
-
 void clearQueue(struct Queue* queue) {
 	if(queue == NULL)
 		return;
@@ -223,7 +232,6 @@ void clearQueue(struct Queue* queue) {
 	// Clear queue
 	free(queue);
 }
-
 void printQueue(const struct Queue* queue) {
 	printf("***************\n");
 	printf("*             *\n");
@@ -265,7 +273,6 @@ void printQueue(const struct Queue* queue) {
 	printf("===============\n");
 	printf("===============\n\n");
 }
-
 void productPush(struct Product * head, struct Product * newPd) {
 
 	struct Product * current = head;
@@ -301,7 +308,6 @@ void printProductList(struct Product * head) {
 	}
 	printf("**************End Product*************\n");
 }
-
 bool checkEqiuipConflict(struct Product* a, struct Product* b ){
 	int i , j;
 	int max =( a->equipmentCount > b->equipmentCount )? a->equipmentCount : b->equipmentCount;
