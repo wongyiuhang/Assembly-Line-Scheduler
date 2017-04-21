@@ -5,7 +5,7 @@
 
 #pragma once
 
-void fileOutput(int fd[2], char* algo, char* filePath) {
+void fileOutput(int fd[2], char* algo, char* filePath, struct Schedule* scheduleTable) {
 	int i, j;
 	struct DayJob buffer;
 	FILE* file = fopen(filePath, "w+");
@@ -19,6 +19,7 @@ void fileOutput(int fd[2], char* algo, char* filePath) {
 	for(i = 0; i < NUM_OF_DAY; i++) {
 		if(read(fd[0], &buffer, sizeof(dayjob_t)) < 1)
 			break;
+		memcpy(&scheduleTable->days[i], &buffer);
 		char day[3][6];
 		for(j = 0; j < 3; j++) {
 			if(buffer.orderID[j] == 0)
