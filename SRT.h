@@ -89,7 +89,7 @@ void SRT_algorithm(struct Queue* jobQueue, char* outputPath, struct Schedule* re
 
 			// Find shortest remain time
 			for(line = 0; line < 3; line++) {
-				nodePointer = SRT_find(jobQueue, day, todayOrder);
+				nodePointer = SRT_find(cloneJobQueue, day, todayOrder);
 				if(nodePointer == NULL)
 					break;
 				today->orderID[line] = nodePointer->data.id;
