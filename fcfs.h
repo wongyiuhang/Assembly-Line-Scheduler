@@ -34,7 +34,7 @@ void FCFS_algorithm(struct Queue* jobQueue, char* outputPath, struct Schedule* r
 		for(line = 0; line < 3; line++) {
 			// Know the first order
 			nextNode = cloneJobQueue->head;
-			firstOrder = (nextNode != NULL) ? nextNode->data : NULL;
+			firstOrder = (nextNode != NULL) ? &nextNode->data : NULL;
 
 			// Find the best start point of the order
 			if(FCFS_isConflict(firstOrder, todayOrder)) {
@@ -44,7 +44,7 @@ void FCFS_algorithm(struct Queue* jobQueue, char* outputPath, struct Schedule* r
 
 			// Add order to the position
 			FCFS_addOrderToSchedule(resultScheduleTable, firstOrder, day, line);
-			dequeue(cloneJobQueue, buffer);
+			dequeue(cloneJobQueue, &buffer);
 		}
 
 		if(skipDay)
