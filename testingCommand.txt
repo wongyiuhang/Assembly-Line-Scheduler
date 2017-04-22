@@ -5,8 +5,9 @@ addOrder R0004 D010 D016 Product_A 5000
 
 addBatchOrder batch_Order_01.dat
 
-runALS -PR n | printSchedule > ALS_Priority_01.txt
-runALS -FCFS n | printSchedule > ALS_FCFS_01.txt
+runALS -SRT | printSchedule > ALS_Priority_01.txt
+
+runALS -FCFS | printSchedule > ALS_FCFS_01.txt
 
 printReport > ALS_Report_02.txt
 
