@@ -39,7 +39,7 @@ int main(int argc, char *argv[]){
 			case 0:cm_addOrder(command,queue,pdHead);break;
 			case 1:cm_addBatchOrder(command,queue,pdHead);break;
 			case 2:cm_runAls(command,queue,&resultScheduleTable[schedTabIdx]); schedTabIdx++;break;
-			case 3:cm_printReport(command);break;
+			case 3:cm_printReport(command,queue,resultScheduleTable);break;
 			case 4:endProgram(queue,pdHead);break;
 		}
 		clearInput();

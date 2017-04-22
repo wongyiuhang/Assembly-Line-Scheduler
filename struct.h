@@ -315,6 +315,26 @@ void printProductList(struct Product * head) {
 	}
 	printf("**************End Product*************\n");
 }
+void printScheduleTable(struct Schedule * resultScheduleTable) {
+	printf("***************\n");
+	printf("*             *\n");
+	printf("*    DEBUG    *\n");
+	printf("*             *\n");
+	printf("***************\n\n");
+	printf("**************print ScheduleTable*************\n");
+	int i,j ;
+	for (i = 0; i < 3; i++)
+	{
+		printf("Line id : %d\n", i);
+		for (j = 0; j < NUM_OF_DAY; j++)
+		{
+			printf("%d,", resultScheduleTable->days[j].orderID[i]);
+		}
+		printf("\n");
+	}	
+	
+	printf("**************End ScheduleTable*************\n");
+}
 bool checkEqiuipConflict(struct Product* a, struct Product* b ){
 	int i , j;
 	int max =( a->equipmentCount > b->equipmentCount )? a->equipmentCount : b->equipmentCount;
