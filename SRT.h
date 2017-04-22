@@ -110,7 +110,7 @@ void SRT_algorithm(struct Queue* jobQueue, char* outputPath, struct Schedule* re
 		// Child process
 		// Close unnessary pipe end
 		close(fd[1]);
-		fileOutput(fd, "SRT", outputPath);
+		fileOutput(fd, "SRT", outputPath, resultScheduleTable);
 	}
 
 	// Prepare a list of dropped order(s)
