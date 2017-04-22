@@ -259,7 +259,7 @@ void printReport(char * fileName,struct Queue * queue,struct Schedule * resultSc
 
 
 
-		sprintf(str, "***Summary of Schedules***\n Algorithm used: %s\n",&resultScheduleTable[table].algo);
+		sprintf(str, "***Summary of Schedules***\n Algorithm used: %s\n",resultScheduleTable[table].algo);
 		fwrite(str , 1 , (strlen(str)*sizeof(char) ), file );
 		int a;
 		int sum = 0;
