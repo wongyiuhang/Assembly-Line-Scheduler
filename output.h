@@ -249,7 +249,7 @@ void printReport(char * fileName,struct Queue * queue,struct Schedule * resultSc
 
 			int workingDay = getDayInUse(&resultScheduleTable[table],line);
 
-			sprintf(str, "Utilization:\t\t\t\t\t%.2f%\n",((float)getWorkingDayInLine(&resultScheduleTable[table],line)*100/60));
+			sprintf(str, "Utilization:\t\t\t\t\t%.2f\%\n",((float)getWorkingDayInLine(&resultScheduleTable[table],line)*100/60));
 			fwrite(str , 1 , (strlen(str)*sizeof(char) ), file );
 			strcpy(str, "=========================================================================================\n\n\n");
 			fwrite(str , 1 , (strlen(str)*sizeof(char) ), file );
@@ -278,7 +278,7 @@ void printReport(char * fileName,struct Queue * queue,struct Schedule * resultSc
 			int *orderInLine = NULL ;
 			orderInLine = getAllorderIdInLine(&resultScheduleTable[table],line);
 			int orderNumber = getNumberofOrderInLine(orderInLine);
-			sprintf(str, "Line_%-13d| %-15d| %-12d| %.2f% \n",
+			sprintf(str, "Line_%-13d| %-15d| %-12d| %.2f\% \n",
 				line+1,
 				orderNumber,
 				getWorkingDayInLine(&resultScheduleTable[table],line),
@@ -301,12 +301,12 @@ void printReport(char * fileName,struct Queue * queue,struct Schedule * resultSc
 		sprintf(str, "AVERAGE OF WORKING DAYS FOR THE 3 ASSEMBLY LINES: %f DAYS \n",(sumWorkingDay/3));
 		fwrite(str , 1 , (strlen(str)*sizeof(char) ), file );
 		
-		sprintf(str, "AVERAGE OF UTILIZATIOIN: %.2f%\n\n",(sumUtit/3));
+		sprintf(str, "AVERAGE OF UTILIZATIOIN: %.2f\%\n\n",(sumUtit/3));
 		fwrite(str , 1 , (strlen(str)*sizeof(char) ), file );
 
 		sprintf(str, "TOTAL WORKING DAYS OF THE 3 ASSEMBLY LINES: %f DAYS \n",sumWorkingDay);
 		fwrite(str , 1 , (strlen(str)*sizeof(char) ), file );
-		sprintf(str, "UTILIZATION OF THE 3 ASSEMBLY LINES: %f %\n\n\n",(sumUtit/3));
+		sprintf(str, "UTILIZATION OF THE 3 ASSEMBLY LINES: %f \%\n\n\n",(sumUtit/3));
 		fwrite(str , 1 , (strlen(str)*sizeof(char) ), file );
 
 
