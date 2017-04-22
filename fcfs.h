@@ -1,100 +1,102 @@
-
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <stdbool.h>
+#include <unistd.h>
 
 #include "struct.h"
-//first: handle the array / linked list that store the process: when time comes, put the process in queue
+#include "global.h"
+
+
+#pragma once
+
+int FCFS_daysleft(int num){
+	return (num%PRODUCT_PER_DAY) ? (num/PRODUCT_PER_DAY+1) : num/PRODUCT_PER_DAY;
+}
+
+void FCFS_addOrderToSchedule(struct Schedule* scheduleTable, struct Order* order, int day, int line) {
+	int i;
+	// int x = FCFS_daysleft(order->quantity) > (order->endDate-day) ? (order->endDate-day) : FCFS_daysleft(order->quantity);
+	// for(i = 0; i < x; i++) {
+	// 	scheduleTable->days[day + i].orderID[line] = order->id;
+	// }
+	int totalDay = FCFS_daysleft(order->quantity);
+	for(i = 0; i < totalDay; i++) {
+		if(day + i >= order->endDate || day + i >= 60)
+			break;
+		scheduleTable->days[day + i].orderID[line] = order->id;
+	}
+}
+
+int FCFS_isConflict(const struct Order* order, const struct Order* todayOrder[3]) {
+	int i;
+	for(i = 0; i < 3; i++)
+		if(todayOrder[i] != NULL && checkEqiuipConflict(order->prod, todayOrder[i]->prod))
+			return 1;
+	return 0;
+}
+
+int FCFS_freeline(struct Order* todayOrder[]) {
+	if (todayOrder[0] == NULL ) {return 0;}
+	if (todayOrder[1] == NULL ) {return 1;}
+	if (todayOrder[2] == NULL ) {return 2;}
+	return -1;
+}
+
 //assume order are ordered by start date
-//second: run the process according to the order(give to the child) (if child1 return free, run the process, otherwise child2, otherwise child3, otherwise continue)
-void fcfs(struct Queue* jobQueue, char* outputPath, struct Schedule* resultScheduleTable, struct Product* pdHead){
-	//********************************************************************************************
+void FCFS_algorithm(struct Queue* jobQueue, char* filePath, struct Schedule* resultScheduleTable){
 	// Initialization
-	
-	static const struct Order EmptyOrder = {0,"","","","",NULL,0,"",0,0,0};
-	struct Schedule sixtydaysschedule;
-	// FCFS algorithm, assume jobQueue's job start date is in ascending order
+	int pid, day, line, fd[2], i;
 	struct Queue* cloneJobQueue = cloneQueue(jobQueue);
+	struct Node* nextNode;
+	struct Order* firstOrder;
+	strcpy(resultScheduleTable->algo, "FCFS");
 	
-	//Current Date of process
-	int currentDate;
-	
-	
-	//handle the first process in queue
-	struct Order handleprocess = dequeue(cloneJobQueue);
-	struct Order running_process[3];
-	
-	//create pipe and child and initialize them
-	int fd[2], pid;
-	pid = fork();
-	if ( pid < 0 ) { printf("Pipe creation error\n"); exit(1);}
-	// child process
-	else if ( pid > 0 ) { close(fd[1]);}
-	//parent process
-	else { close(fd[0]);}
-	
-	
-	
-	//********************************************************************************************	
+	for(day = 0; day < NUM_OF_DAY; day++)
+		for(line = 0; line < 3; line++) {
+			resultScheduleTable->days[day].orderID[line] = 0;
+		}
 
+	// Prepare pipe for result streaming
+	pipe(fd);
 
-	
-	// run 60 times represent 60 days job
-	for(currentDate=1; currentDate <= NUM_OF_DAY; currentDate++) {
-	
-			
-		//end of last day.  Process time needed for each process minus 1.
-		if(running_process[0].remainDay > 0 ) {running_process[0].remainDay--;}
-		if(running_process[1].remainDay > 0 ) {running_process[1].remainDay--;}
-		if(running_process[2].remainDay > 0 ) {running_process[2].remainDay--;}
-		
-		//check whether endtime come or the process is running.  If end time come, drop the process
-		if (running_process[0].remainDay < 0 || running_process[0].endDate == currentDate) {
-			running_process[0] = EmptyOrder;}
-		if (running_process[1].remainDay < 0 || running_process[1].endDate == currentDate) {
-			running_process[1] = EmptyOrder;}
-		if (running_process[2].remainDay < 0 || running_process[2].endDate == currentDate) {
-			running_process[2] = EmptyOrder;}
-		
-		// Handle new coming process
-		while (true){ // when break, it can put data to child to pass data
-			while (handleprocess.startDate < currentDate) { handleprocess = dequeue(jobQueue);}
-			//parent process: handle schedule
-			if (pid > 0)	{	
-				// Is process free? if some of them are not busy, check next condition.  Otherwise go to next day
-				if (running_process[0].remainDay == 0 || running_process[1].remainDay == 0 || running_process[2].remainDay == 0){
-					// Check whether the execution process having equipment conflict with others
-					if (running_process[0].remainDay != 0) {if(checkEqiuipConflict(running_process[0].prod,handleprocess.prod)) {break;}}
-					if (running_process[1].remainDay != 0) {if(checkEqiuipConflict(running_process[1].prod,handleprocess.prod)) {break;}}
-					if (running_process[2].remainDay != 0) {if(checkEqiuipConflict(running_process[2].prod,handleprocess.prod)) {break;}}
-					// All conditions satisfy that process can put to the line. 
-					if (running_process[0].remainDay != 0) {running_process[0] = handleprocess; handleprocess = dequeue(cloneJobQueue); continue;}
-					if (running_process[1].remainDay != 0) {running_process[1] = handleprocess; handleprocess = dequeue(cloneJobQueue); continue;}
-					if (running_process[2].remainDay != 0) {running_process[2] = handleprocess; handleprocess = dequeue(cloneJobQueue); continue;}
-				}
-				else{ break;}
+	// Prepare child process for file output
+	if(fork()) {
+		// Parent process
+		// Close unnessary pipe end
+		close(fd[0]);
+		for(day = 0; day < NUM_OF_DAY; day++) {
+			// Initialise value
+			struct DayJob* today = resultScheduleTable->days + day;
+			struct Order* todayOrder[3];
+			struct Order buffer;
+			for(line = 0; line < 3; line++) {
+				struct Node* ordersearch = searchOrder(jobQueue,today->orderID[line]);
+				todayOrder[line] = &ordersearch->data;
 			}
-			//child process: use pipe to output the process to txt
-			else {
-				break;
-			
-			
-			
-				
+
+			for(line = 0; line < 3; line++) {
+				// Know the first order
+				nextNode = cloneJobQueue->head;
+				firstOrder = (nextNode != NULL) ? &nextNode->data : NULL;
+
+				// Find the best start point of the order
+				if(FCFS_isConflict(firstOrder, todayOrder))
+					break;
+
+				// Add order to the position
+				FCFS_addOrderToSchedule(resultScheduleTable, firstOrder, day, line);
+				dequeue(cloneJobQueue, &buffer);
 			}
 		}
-	}	
-	
-	
-	//Close the pipe and child
-	if (pid > 0) { 
-		close(fd[0]);
-	}
-	else{ 
+		// Pass DayJob to file output process
+		for(day = 0; day < NUM_OF_DAY; day++)
+			write(fd[1], resultScheduleTable->days + day, sizeof(dayjob_t));
+
 		close(fd[1]);
 		wait(NULL);
-		exit(0); // need change
+	} else {
+		// Child process
+		// Close unnessary pipe end
+		close(fd[1]);
+		fileOutput(fd, "FCFS", filePath);
 	}
-	
 }
