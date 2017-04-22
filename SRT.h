@@ -57,7 +57,7 @@ struct Node* SRT_find(const struct Queue* jobQueue, int day, const struct Order*
 }
 
 void SRT_algorithm(struct Queue* jobQueue, char* outputPath, struct Schedule* resultScheduleTable) {
-	int pid, day, line, fd[2];
+	int pid, day, line, fd[2], i;
 	struct Queue* cloneJobQueue = cloneQueue(jobQueue);
 	struct Node* nodePointer = cloneJobQueue->head;
 	strcpy(resultScheduleTable->algo, "SRT");
@@ -111,6 +111,25 @@ void SRT_algorithm(struct Queue* jobQueue, char* outputPath, struct Schedule* re
 		// Close unnessary pipe end
 		close(fd[1]);
 		fileOutput(fd, "SRT", outputPath, resultScheduleTable);
+	}
+
+	// Prepare a list of dropped order(s)
+	resultScheduleTable->droppedOrderCount = 0;
+	// Count number of dropped order(s)
+	nodePointer = cloneJobQueue->head;
+	while(nodePointer != NULL) {
+		if(nodePointer->data.remainDay > 0)
+			resultScheduleTable->droppedOrderCount++;
+		nodePointer = nodePointer->next;
+	}
+	resultScheduleTable->droppedOrder = malloc(sizeof(int) * resultScheduleTable->droppedOrderCount);
+	// Mark the orderID of dropped order(s)
+	nodePointer = cloneJobQueue->head;
+	i = 0;
+	while(nodePointer != NULL) {
+		if(nodePointer->data.remainDay > 0)
+			resultScheduleTable->droppedOrder[i++];
+		nodePointer = nodePointer->next;
 	}
 
 	clearQueue(cloneJobQueue);
