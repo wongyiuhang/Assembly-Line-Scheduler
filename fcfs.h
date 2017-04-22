@@ -75,7 +75,7 @@ void FCFS_algorithm(struct Queue* jobQueue, char* filePath, struct Schedule* res
 				break;
 			for(line = 0; line < 3; line++) {
 				struct Node* ordersearch = searchOrder(jobQueue,today->orderID[line]);
-				todayOrder[line] = &ordersearch->data;
+				todayOrder[line] = (ordersearch != NULL) ? &ordersearch->data : NULL;
 			}
 
 			for(line = 0; line < 3; line++) {
