@@ -63,11 +63,16 @@ void FCFS_algorithm(struct Queue* jobQueue, char* filePath, struct Schedule* res
 		// Parent process
 		// Close unnessary pipe end
 		close(fd[0]);
+		nextNode = cloneJobQueue->head;
 		for(day = 0; day < NUM_OF_DAY; day++) {
 			// Initialise value
 			struct DayJob* today = resultScheduleTable->days + day;
 			struct Order* todayOrder[3];
 			struct Order buffer;
+
+			// Error checking
+			if(nextNode == NULL)
+				break;
 			for(line = 0; line < 3; line++) {
 				struct Node* ordersearch = searchOrder(jobQueue,today->orderID[line]);
 				todayOrder[line] = &ordersearch->data;
@@ -75,8 +80,9 @@ void FCFS_algorithm(struct Queue* jobQueue, char* filePath, struct Schedule* res
 
 			for(line = 0; line < 3; line++) {
 				// Know the first order
-				nextNode = cloneJobQueue->head;
-				firstOrder = (nextNode != NULL) ? &nextNode->data : NULL;
+				if(nextNode == NULL)
+					break;
+				firstOrder = &nextNode->data;
 
 				// Find the best start point of the order
 				if(FCFS_isConflict(firstOrder, todayOrder))
@@ -84,7 +90,7 @@ void FCFS_algorithm(struct Queue* jobQueue, char* filePath, struct Schedule* res
 
 				// Add order to the position
 				FCFS_addOrderToSchedule(resultScheduleTable, firstOrder, day, line);
-				dequeue(cloneJobQueue, &buffer);
+				nextNode = nextNode->next;
 			}
 		}
 		// Pass DayJob to file output process
@@ -97,6 +103,6 @@ void FCFS_algorithm(struct Queue* jobQueue, char* filePath, struct Schedule* res
 		// Child process
 		// Close unnessary pipe end
 		close(fd[1]);
-		fileOutput(fd, "FCFS", filePath);
+		fileOutput(fd, "FCFS", filePath, resultScheduleTable);
 	}
 }
