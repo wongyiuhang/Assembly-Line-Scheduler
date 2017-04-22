@@ -137,9 +137,17 @@ int dequeue(struct Queue* queue, struct Order* result) {
 struct Queue* cloneQueue(struct Queue* sourseQueue) {
 	const struct Node* nextNode = sourseQueue->head;
 	struct Queue* cloneQueue = newQueue();
+	struct Node* cloneNode = cloneQueue->head;
 	while(nextNode != NULL) {
-		enqueue(cloneQueue, &(nextNode->data));
+		struct Node* tempNode = (struct Node*)malloc(sizeof(node_t));
+		memcpy(tempNode,nextNode,sizeof(node_t));
+		cloneNode = tempNode;
+		if (cloneQueue->head == NULL)
+			cloneQueue->head = tempNode;
+
 		nextNode = nextNode->next;
+		cloneNode = cloneNode->next;
+		cloneQueue->tail = tempNode;
 	}
 	return cloneQueue;
 }
